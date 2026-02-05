@@ -1,69 +1,108 @@
-@import "tailwindcss";
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import 'tailwindcss';
+@layer base {
+    html {
+        font-family:
+            'Roboto',
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            Arial,
+            sans-serif;
+    }
+}
+.max-w-1200px {
+    max-width: 1250px;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+.icon-userHeader {
+    background-position: -625px -245px;
+    width: 21px;
+    height: 26px;
 }
-a:hover {
-  color: #535bf2;
+.icon-cartHeader {
+    background-position: -555px -5px;
+    width: 32px;
+    height: 32px;
+}
+.iconlogo-headerDt {
+    background-position: 0 -505px;
+    height: 42px;
+    width: 195px;
+}
+.icon-mapHeader {
+    background-position: -3px -312px;
+    width: 21px;
+    height: 21px;
+}
+.iconlogo-bocongthuong {
+    background-position: -159px -105px;
+    height: 32px;
+    width: 83px;
+}
+.iconlogo-dmca {
+    background-position: -250px -131px;
+    height: 17px;
+    width: 90px;
+}
+.iconlogo-topzoneDT {
+    background-position: -145px -225px;
+    height: 41px;
+    width: 134px;
+}
+.iconlogo-bhxDT {
+    background-position: 0 -275px;
+    height: 41px;
+    width: 134px;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+.iconlogo-tgddDT {
+    background-position: -145px -275px;
+    height: 41px;
+    width: 134px;
+}
+.iconlogo-dmxDT {
+    background-position: 0 -325px;
+    height: 41px;
+    width: 134px;
+}
+.iconlogo-ankhangDT {
+    background-position: -145px -460px;
+    height: 41px;
+    width: 134px;
+}
+.iconlogo-vieclamDT {
+    background-position: 0 -460px;
+    height: 41px;
+    width: 134px;
+}
+.iconlogo-erablueDT {
+    background-position: 0 -225px;
+    height: 41px;
+    width: 134px;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.iconlogo-thodmxDT {
+    background-position: -285px -175px;
+    height: 41px;
+    width: 134px;
 }
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+[class*='icon-'],
+[class*='iconlogo-'],
+[class^='icon-'],
+[class^='iconlogo-'] {
+    background-repeat: no-repeat;
+    display: inline-block;
+    line-height: 30px;
+    vertical-align: middle;
 }
-button:hover {
-  border-color: #646cff;
+[class*='iconlogo-'],
+[class^='iconlogo-'] {
+    background-image: url('/icon_commonLOGO-minv2.png');
+    background-size: 600px 600px;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+[class*='icon-'],
+[class^='icon-'] {
+    background-image: url('/0228535c36ad838ec06d6170e5c37cd6.png');
+    background-size: 800px 800px;
 }
