@@ -25,6 +25,11 @@
     width: 32px;
     height: 32px;
 }
+.icon-infoHeader {
+    background-position: -370px -210px;
+    width: 24px;
+    height: 24px;
+}
 .iconlogo-headerDt {
     background-position: 0 -505px;
     height: 42px;
@@ -105,4 +110,34 @@
 [class^='icon-'] {
     background-image: url('/0228535c36ad838ec06d6170e5c37cd6.png');
     background-size: 800px 800px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Tippy z-index override */
+[data-tippy-root] {
+    z-index: 99999 !important;
 }

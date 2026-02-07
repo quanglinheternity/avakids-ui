@@ -1,55 +1,80 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
-
-interface Banner {
-    id: number;
-    imageUrl: string;
-}
+import { useBanner, type Banner } from '../../../../contexts/BannerContext';
 
 const SWIPE_DISTANCE = 50;
 const AUTO_SLIDE_INTERVAL = 3000;
 
 const TopBanner: React.FC = () => {
+    const { getBannersByPosition, isLoading } = useBanner();
     const [banners, setBanners] = useState<Banner[]>([]);
+    // Actually better to use local state derived from context or just memoized.
+    // Let's stick effectively to local state for simplicity of potential fallbacks or just direct usage.
+
+    // Better approach: Sync from context
+    useEffect(() => {
+        const topBanners = getBannersByPosition('TOP');
+        if (topBanners.length > 0) {
+            setBanners(topBanners);
+        } else if (!isLoading && topBanners.length === 0) {
+            // Keep fallback or allow context to return empty? 
+            // User's original code had fallback on catch. Context handles fetch errors by returning empty. 
+            // If we want fallbacks here when API returns nothing, we need to check.
+            setBanners([
+                {
+                    id: 1,
+                    title: 'Fallback Banner 1',
+                    imageUrl:
+                        'https://img.tgdd.vn/imgt/ecom/f_webp,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/4d/da/4ddabce1eec7519f628d278c01a65af4.png',
+                    linkUrl: '#',
+                    position: 'TOP',
+                    displayOrder: 0,
+                    startAt: '',
+                    endAt: '',
+                    isActive: true,
+                    createdAt: '',
+                    updatedAt: '',
+                },
+                {
+                    id: 2,
+                    title: 'Fallback Banner 2',
+                    imageUrl:
+                        'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/5e/91/5e91f34164b6f747c389883f4932f892.png',
+                    linkUrl: '#',
+                    position: 'TOP',
+                    displayOrder: 1,
+                    startAt: '',
+                    endAt: '',
+                    isActive: true,
+                    createdAt: '',
+                    updatedAt: '',
+                },
+                {
+                    id: 3,
+                    title: 'Fallback Banner 3',
+                    imageUrl:
+                        'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/40/fe/40fea0190af00139cbb30628bbd0532c.png',
+                    linkUrl: '#',
+                    position: 'TOP',
+                    displayOrder: 2,
+                    startAt: '',
+                    endAt: '',
+                    isActive: true,
+                    createdAt: '',
+                    updatedAt: '',
+                },
+            ]);
+        }
+    }, [isLoading, getBannersByPosition]);
+
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
     const [isDragging, setIsDragging] = useState(false);
 
     const startXRef = useRef<number | null>(null);
     const currentXRef = useRef<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    /* ================= FETCH DATA ================= */
-    useEffect(() => {
-        const fetchBanners = async () => {
-            try {
-                const res = await axios.get<Banner[]>('https://api.example.com/banners');
-                setBanners(res.data);
-            } catch {
-                setBanners([
-                    {
-                        id: 1,
-                        imageUrl:
-                            'https://img.tgdd.vn/imgt/ecom/f_webp,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/4d/da/4ddabce1eec7519f628d278c01a65af4.png',
-                    },
-                    {
-                        id: 2,
-                        imageUrl:
-                            'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/5e/91/5e91f34164b6f747c389883f4932f892.png',
-                    },
-                    {
-                        id: 3,
-                        imageUrl:
-                            'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/40/fe/40fea0190af00139cbb30628bbd0532c.png',
-                    },
-                ]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    /* ================= FETCH DATA REMOVED - USING CONTEXT ================= */
 
-        fetchBanners();
-    }, []);
 
     /* ================= SLIDE CONTROL ================= */
     const goToNext = useCallback(() => {
@@ -144,9 +169,8 @@ const TopBanner: React.FC = () => {
                         <button
                             key={i}
                             onClick={() => setCurrentIndex(i)}
-                            className={`size-1.5 rounded-full ${
-                                i === currentIndex ? 'scale-110 bg-blue-600' : 'bg-gray-300'
-                            }`}
+                            className={`size-1.5 rounded-full ${i === currentIndex ? 'scale-110 bg-blue-600' : 'bg-gray-300'
+                                }`}
                         />
                     ))}
                 </div>

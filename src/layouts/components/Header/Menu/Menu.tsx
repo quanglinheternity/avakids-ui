@@ -6,7 +6,7 @@ import Logo from './Logo';
 const Menu = () => {
     return (
         <header className="sticky top-0 z-50 border-b border-white/10 bg-[#e82e81] text-white">
-            <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-3 px-4 py-3 lg:flex-nowrap">
+            <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-3  py-3 lg:flex-nowrap">
                 {/* Logo */}
                 <div className="shrink-0">
                     <Logo />
@@ -38,9 +38,15 @@ const Menu = () => {
                     <div className="hidden sm:block">
                         <DeliveryLocation
                             address={'13 Đường Lê Lợi, Quận 1, TP.HCM'}
-                            // prefixText="Địa chỉ nhận hàng:"
-                            // onClick={handleChangeAddress}
-                            // badgeCount={0}
+                        // prefixText="Địa chỉ nhận hàng:"
+                        // onClick={handleChangeAddress}
+                        // badgeCount={0}
+                        />
+                    </div>
+                    <span className="hidden h-6 w-px bg-white/30 sm:inline-block"></span>
+                    <div className="hidden sm:block rounded-full cursor-pointer rounded-full bg-gray-800/25 p-1 transition-all duration-200 hover:bg-gray-800/40 active:scale-[0.98] ">
+                        <HeaderIconButton
+                            iconClass="icon-infoHeader"
                         />
                     </div>
                 </div>

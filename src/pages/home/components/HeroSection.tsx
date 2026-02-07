@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import CarouselNavigation from '../../../components/CarouselNavigation';
+import { useBanner } from '../../../contexts/BannerContext';
 
 type HeroCard = {
     image: string;
@@ -16,61 +17,149 @@ type HeroSlide = {
     right: HeroCard;
 };
 
-const heroSlides: HeroSlide[] = [
-    {
-        id: 1,
-        left: {
-            image:
-                'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/b2/26/b226de85f9c0aa370a920315061e55e0.png',
-            badge: 'Mua 3 Tặng 1',
-            badgeClassName: 'bg-yellow-400 text-black',
-            title: 'Tã Quần Siêu Thấm Hút',
-            description: 'Mẹ Chill Tết - Bé Lo Hết',
-            align: 'left',
-        },
-        right: {
-            image:
-                'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/c3/ec/c3ec79cb9e9fca4e474b3d0c19acbe40.png',
-            badge: 'Giá chỉ từ 1.007.000đ',
-            badgeClassName: 'bg-primary text-white',
-            title: 'Ghế Ngồi Ô Tô An Toàn',
-            description: 'Chuẩn Châu Âu - Bảo vệ bé yêu',
-            align: 'right',
-        },
-    },
-    {
-        id: 2,
-        left: {
-            image:
-                'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/90/74/907488a568082595542919cf3b7460c6.png',
-            badge: 'Giảm 20%',
-            badgeClassName: 'bg-red-500 text-white',
-            title: 'Combo Tã Siêu Tiết Kiệm',
-            description: 'Tiện lợi cho cả tháng đầu năm',
-            align: 'left',
-        },
-        right: {
-            image:
-                'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/70/f1/70f147a43394480f2d828ec434e21206.png',
-            badge: 'Ưu đãi cuối tuần',
-            badgeClassName: 'bg-amber-400 text-black',
-            title: 'Ghế Ô Tô Kèm Phụ Kiện',
-            description: 'Combo giá tốt, an toàn cho bé',
-            align: 'right',
-        },
-    },
-];
-
 const HeroSection = () => {
+    const { getBannersByPosition } = useBanner();
+    const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
     const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
+        const banners = getBannersByPosition('SIDEBAR');
+        if (banners.length > 0) {
+            // Map banners to HeroSlide format. Assuming pairwise for now or just single repeating if odd.
+            // Logic: Take every 2 banners.
+            const slides: HeroSlide[] = [];
+            for (let i = 0; i < banners.length; i += 2) {
+                if (i + 1 < banners.length) {
+                    slides.push({
+                        id: slides.length + 1,
+                        left: {
+                            image: banners[i].imageUrl,
+                            badge: 'Mới',
+                            badgeClassName: 'bg-primary text-white',
+                            title: banners[i].title,
+                            description: 'Khám phá ngay',
+                            align: 'left'
+                        },
+                        right: {
+                            image: banners[i + 1].imageUrl,
+                            badge: 'Hot',
+                            badgeClassName: 'bg-red-500 text-white',
+                            title: banners[i + 1].title,
+                            description: 'Ưu đãi cực sốc',
+                            align: 'right'
+                        }
+                    });
+                }
+            }
+            // Fallback to static if no slides parsed (e.g. 0 or 1 banner found but logic needs 2)?
+            // Or just append what we have. 
+            if (slides.length > 0) setHeroSlides(slides);
+            else {
+                // Fallback static data if API returns nothing for HERO
+                setHeroSlides([
+                    {
+                        id: 1,
+                        left: {
+                            image:
+                                'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/b2/26/b226de85f9c0aa370a920315061e55e0.png',
+                            badge: 'Mua 3 Tặng 1',
+                            badgeClassName: 'bg-yellow-400 text-black',
+                            title: 'Tã Quần Siêu Thấm Hút',
+                            description: 'Mẹ Chill Tết - Bé Lo Hết',
+                            align: 'left',
+                        },
+                        right: {
+                            image:
+                                'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/c3/ec/c3ec79cb9e9fca4e474b3d0c19acbe40.png',
+                            badge: 'Giá chỉ từ 1.007.000đ',
+                            badgeClassName: 'bg-primary text-white',
+                            title: 'Ghế Ngồi Ô Tô An Toàn',
+                            description: 'Chuẩn Châu Âu - Bảo vệ bé yêu',
+                            align: 'right',
+                        },
+                    },
+                    {
+                        id: 2,
+                        left: {
+                            image:
+                                'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/90/74/907488a568082595542919cf3b7460c6.png',
+                            badge: 'Giảm 20%',
+                            badgeClassName: 'bg-red-500 text-white',
+                            title: 'Combo Tã Siêu Tiết Kiệm',
+                            description: 'Tiện lợi cho cả tháng đầu năm',
+                            align: 'left',
+                        },
+                        right: {
+                            image:
+                                'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/70/f1/70f147a43394480f2d828ec434e21206.png',
+                            badge: 'Ưu đãi cuối tuần',
+                            badgeClassName: 'bg-amber-400 text-black',
+                            title: 'Ghế Ô Tô Kèm Phụ Kiện',
+                            description: 'Combo giá tốt, an toàn cho bé',
+                            align: 'right',
+                        },
+                    },
+                ]);
+            }
+        } else {
+            // Fallback static data if no banners
+            setHeroSlides([
+                {
+                    id: 1,
+                    left: {
+                        image:
+                            'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/b2/26/b226de85f9c0aa370a920315061e55e0.png',
+                        badge: 'Mua 3 Tặng 1',
+                        badgeClassName: 'bg-yellow-400 text-black',
+                        title: 'Tã Quần Siêu Thấm Hút',
+                        description: 'Mẹ Chill Tết - Bé Lo Hết',
+                        align: 'left',
+                    },
+                    right: {
+                        image:
+                            'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/c3/ec/c3ec79cb9e9fca4e474b3d0c19acbe40.png',
+                        badge: 'Giá chỉ từ 1.007.000đ',
+                        badgeClassName: 'bg-primary text-white',
+                        title: 'Ghế Ngồi Ô Tô An Toàn',
+                        description: 'Chuẩn Châu Âu - Bảo vệ bé yêu',
+                        align: 'right',
+                    },
+                },
+                {
+                    id: 2,
+                    left: {
+                        image:
+                            'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/90/74/907488a568082595542919cf3b7460c6.png',
+                        badge: 'Giảm 20%',
+                        badgeClassName: 'bg-red-500 text-white',
+                        title: 'Combo Tã Siêu Tiết Kiệm',
+                        description: 'Tiện lợi cho cả tháng đầu năm',
+                        align: 'left',
+                    },
+                    right: {
+                        image:
+                            'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/common/Banner/70/f1/70f147a43394480f2d828ec434e21206.png',
+                        badge: 'Ưu đãi cuối tuần',
+                        badgeClassName: 'bg-amber-400 text-black',
+                        title: 'Ghế Ô Tô Kèm Phụ Kiện',
+                        description: 'Combo giá tốt, an toàn cho bé',
+                        align: 'right',
+                    },
+                },
+            ]);
+        }
+    }, [getBannersByPosition]);
+
+    useEffect(() => {
+        if (heroSlides.length === 0) return;
         const id = setInterval(() => {
             setActiveIndex((prev) => (prev + 1) % heroSlides.length);
         }, 5000);
 
         return () => clearInterval(id);
-    }, []);
+    }, [heroSlides.length]);
+
+    if (heroSlides.length === 0) return null;
 
     const current = heroSlides[activeIndex];
 

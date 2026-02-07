@@ -1,44 +1,66 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import ArticleCard from './ArticleCard';
 
+interface Article {
+    id: number;
+    title: string;
+    date: string;
+    image: string;
+    link?: string;
+}
+
+interface BlogResponse {
+    id: number;
+    title: string;
+    slug: string;
+    thumbnailUrl: string;
+    publishedAt: string;
+    summary: string;
+}
+
+interface ApiResponse {
+    code: number;
+    message: string;
+    data: {
+        content: BlogResponse[];
+    };
+}
+
 const BlogSection = () => {
-    const articles = [
-        {
-            id: 1,
-            title: 'Thông báo thu hồi sản phẩm thực phẩm bảo vệ sức khỏe MENACAL được sản xuất bởi HC CLOVER PS',
-            date: '03/02/2026',
-            image: 'https://cdnv2.tgdd.vn/mwg-static/common/News/1589356/thong-bao-thu-hoi-san-pham-thuc-pham-bao-ve-suc-thumbbbb.jpg',
-        },
-        {
-            id: 2,
-            title: 'LiveSpo NAVAX - Bảo tử lợi khuẩn cho đường hô hấp - Giảm nguy cơ viêm đường hô hấp',
-            date: '26/01/2026',
-            image: 'https://cdn.tgdd.vn/bachhoaxanh/banners/5692/cam-nang-mua-sam-livespo-navax-720x300.jpg',
-        },
-        {
-            id: 3,
-            title: '(01/01 - 15/02) Khởi đầu năm mới, chọn điều tốt nhất cho Mẹ và bé - Đồ dùng giảm đến 50%',
-            date: '01/01/2026',
-            image: 'https://cdn.tgdd.vn/bachhoaxanh/banners/5658/cam-nang-mua-sam-khai-mac-tet-me-be-720x300.jpg',
-        },
-        {
-            id: 4,
-            title: '(01/01 - 15/02) Tháng 1 mặc xinh – Bé đón năm mới thật vui - Thời trang, Phụ kiện giá chỉ từ 19.000đ',
-            date: '01/01/2026',
-            image: 'https://cdn.tgdd.vn/bachhoaxanh/banners/5660/cam-nang-mua-sam-thang-1-mac-xinh-720x300.jpg',
-        },
-        {
-            id: 5,
-            title: '(01/01 - 15/02) BẢO SALE TẾT ĐỒ BỘ: Giảm đến 50% lại còn MUA 1 TẶNG 1 - Nhiều mẫu đẹp',
-            date: '01/01/2026',
-            image: 'https://cdn.tgdd.vn/bachhoaxanh/banners/5659/cam-nang-mua-sam-bao-sale-tet-do-bo-720x300.jpg',
-        },
-        {
-            id: 6,
-            title: '(04/02 - 28/02) Tích luỹ hoá đơn sữa Pediasure, Abottt Grow, Similac nhân quà liền tay',
-            date: '27/05/2025',
-            image: 'https://cdn.tgdd.vn/bachhoaxanh/banners/5704/cam-nang-mua-sam-tich-luy-hoa-don-sua-720x300.png',
-        },
-    ];
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBlogs = async () => {
+            try {
+                const res = await axios.get<ApiResponse>('http://localhost:8080/avakids/api/v1/blogs/list');
+                if (res.data && res.data.data) {
+                    const mappedArticles: Article[] = res.data.data.content.map((blog) => ({
+                        id: blog.id,
+                        title: blog.title,
+                        date: new Date(blog.publishedAt).toLocaleDateString('vi-VN'),
+                        image: blog.thumbnailUrl || 'https://cdnv2.tgdd.vn/mwg-static/common/News/1589356/thong-bao-thu-hoi-san-pham-thuc-pham-bao-ve-suc-thumbbbb.jpg', // Fallback or mapping
+                        link: `/tin-tuc/${blog.slug}`
+                    }));
+                    setArticles(mappedArticles);
+                }
+            } catch (error) {
+                console.error("Failed to fetch blogs", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchBlogs();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <section className="overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800 h-[400px] animate-pulse bg-gray-200 dark:bg-gray-700">
+            </section>
+        );
+    }
 
     return (
         <section className="overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800">

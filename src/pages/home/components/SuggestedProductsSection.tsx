@@ -1,97 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import ProductCard from './ProductCard';
+import convertProduct from './convertProduct';
+import type { Product, ProductResponse } from './convertProduct';
+
+interface ApiResponse {
+    code: number;
+    message: string;
+    data: ProductResponse[];
+}
 
 const SuggestedProductsSection = () => {
     const [activeTab, setActiveTab] = useState<'suggested' | 'rebuy' | 'favorite'>('suggested');
+    const [products, setProducts] = useState<Product[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const products = [
-        {
-            id: 1,
-            name: 'Bột ném Anpaso rong biển hũ 60g - Giao bao bì ngẫu nhiên',
-            salePrice: '75.000đ',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/e3/be/87/d74f9e37f08d52bb75e779f3e2a4adb1.jpg',
-            soldCount: 342,
-            rating: 5,
-            tags: [],
-        },
-        {
-            id: 2,
-            name: 'Bột ném Anpaso nấm hương hũ 60g - Giao bao bì ngẫu nhiên',
-            salePrice: '75.000đ',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/57/22/89/2e9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 342,
-            rating: 5,
-            tags: [],
-        },
-        {
-            id: 3,
-            name: 'Nui mix rau củ Anpaso',
-            originalPrice: '89.000đ',
-            salePrice: '80.100đ',
-            discount: '-10%',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/9f/8e/57/3e9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 49,
-            tags: ['Từ 6 tháng', '150g'],
-        },
-        {
-            id: 4,
-            name: 'Nui ăn dặm Bartolini',
-            salePrice: '61.000đ',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/2f/7e/47/4e9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 98,
-            tags: ['Từ 8 tháng', '250g'],
-        },
-        {
-            id: 5,
-            name: 'Sữa bột Optimum Gold số 2 - Giao bao bì ngẫu nhiên',
-            salePrice: '479.000đ',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/5f/9e/67/5e9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 158,
-            tags: ['6 - 12 tháng', '800g'],
-        },
-        {
-            id: 6,
-            name: 'Mì ăn liền rau củ Mix',
-            originalPrice: '38.000đ',
-            salePrice: '34.200đ',
-            discount: '-10%',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/6f/ae/77/6e9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 234,
-            tags: [],
-        },
-        {
-            id: 7,
-            name: 'Mì ăn liền vị tôm',
-            salePrice: '70.000đ',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/7f/be/87/7e9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 156,
-            tags: [],
-        },
-        {
-            id: 8,
-            name: 'Bột ăn dặm rau củ Mix',
-            salePrice: '58.000đ',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/8f/ce/97/8e9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 89,
-            tags: [],
-        },
-        {
-            id: 9,
-            name: 'Bột ăn dặm vị cà rốt',
-            salePrice: '58.000đ',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/9f/de/a7/9e9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 67,
-            tags: [],
-        },
-        {
-            id: 10,
-            name: 'Nui ăn dặm Bartolini số 1',
-            salePrice: '61.000đ',
-            image: 'https://salt.tikicdn.com/cache/280x280/ts/product/af/ee/b7/ae9b098a61c8df8e8f5e7f8e8f5e8f5e.jpg',
-            soldCount: 123,
-            tags: [],
-        },
-    ];
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await axios.get<ApiResponse>('http://localhost:8080/avakids/api/v1/products/recommend?limit=20');
+                if (res.data && res.data.data) {
+                    setProducts(res.data.data.map(convertProduct));
+                }
+            } catch (error) {
+                console.error("Failed to fetch suggested products", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <section className="relative overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800 h-[500px] animate-pulse bg-gray-200 dark:bg-gray-700">
+            </section>
+        );
+    }
 
     return (
         <section className="relative overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800">

@@ -1,78 +1,40 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import axios from 'axios';
 import ProductCard from './ProductCard';
+import convertProduct from './convertProduct';
+import type { Product, ProductResponse } from './convertProduct';
+
+
+interface ApiResponse {
+    code: number;
+    message: string;
+    data: ProductResponse[];
+}
 
 const FlashSaleSection = () => {
     const [activeTab, setActiveTab] = useState<'ongoing' | 'upcoming'>('ongoing');
+    const [products, setProducts] = useState<Product[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const carouselRef = useRef<HTMLDivElement>(null);
 
-    const products = [
-        {
-            id: 1,
-            name: 'Thùng 48 hộp sữa non pha sẵn ColosBaby Gold',
-            originalPrice: '555.000đ',
-            salePrice: '471.700đ',
-            discount: '-15%',
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBzwY1pZtfsXLffHpZHqO2eH9t8zfu-Tqppse6-ojd-es6PHGbdENQRXav8CrCwbopxDjOCRNYWWhK4GUre4OYNoTlhN3T2RWsQkkmQogJsJuE69v-Dsm4O8mKj4rx7KjdKe85htLMDaHPLDRFA5e_rgQUEeVgzms0wI1KmaNm9AFQbIUk6_oTST_g9DMkEBGq158WyPhCilXCACDUCdkxpvdBvx8cpCBhvS25Wut94Wu4DeBxgrlCOWw6uj5a2YN5T2Qm7ySSV6E5x',
-            remaining: 30,
-            total: 30,
-            tags: ['110 ml', 'Từ 1 tuổi'],
-        },
-        {
-            id: 2,
-            name: 'Thùng 48 hộp sữa non pha sẵn ColosBaby IQ',
-            originalPrice: '850.000đ',
-            salePrice: '722.500đ',
-            discount: '-15%',
-            image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtSYveN_WdXzDrw9IxaTXv0HiljX1Cy-y_RTIayQsZrWD7kKf1pDza5oMAscDHDfmSSUElNkniGhFDP22PP6jsWCJpht-y7rS944FngLM8d19hxrmrDbAkqxiXLUGrWNi7Xat9jaw5NjnrRsIThf4nHfTNPa02cXkP9ngZ7-GS2mBwUU993FZALex7avQIdqxupvAha5WE2A17lAjLUgv2v30aGFZ-1tEC_KuW8Qclip0YSEVLMnPp_0KXzv7H-xPcHfPA_AQ0KsR-',
-            remaining: 30,
-            total: 30,
-            tags: ['180ml', 'Từ 1 tuổi'],
-        },
-        {
-            id: 3,
-            name: 'Áo dài bé gái Lullaby cotton đỏ - trắng',
-            originalPrice: '349.000đ',
-            salePrice: '150.000đ',
-            discount: '-57%',
-            image: 'https://salt.tikicdn.com/cache/750x750/ts/product/51/7e/99/8d3e3a3e3b3b3c3c3c3c3c3c3c3c3c3c.jpg',
-            remaining: 3,
-            total: 5,
-            tags: ['18 - 24 tháng'],
-        },
-        {
-            id: 4,
-            name: 'Thùng 24 túi sữa chua uống tiệt trùng LiF Kun',
-            originalPrice: '127.000đ',
-            salePrice: '107.900đ',
-            discount: '-15%',
-            image: 'https://salt.tikicdn.com/cache/750x750/ts/product/2d/8e/99/8d3e3a3e3b3b3c3c3c3c3c3c3c3c3c3c.jpg',
-            remaining: 30,
-            total: 30,
-            tags: ['Vị kem dâu', '110 ml'],
-        },
-        {
-            id: 5,
-            name: 'Thùng 24 túi sữa chua uống tiệt trùng LiF Kun',
-            originalPrice: '127.000đ',
-            salePrice: '107.900đ',
-            discount: '-15%',
-            image: 'https://salt.tikicdn.com/cache/750x750/ts/product/3d/9e/99/8d3e3a3e3b3b3c3c3c3c3c3c3c3c3c3c.jpg',
-            remaining: 30,
-            total: 30,
-            tags: ['Vị cam', '110 ml'],
-        },
-        {
-            id: 6,
-            name: 'Thùng 24 túi sữa chua uống tiệt trùng LiF Kun',
-            originalPrice: '127.000đ',
-            salePrice: '107.900đ',
-            discount: '-15%',
-            image: 'https://salt.tikicdn.com/cache/750x750/ts/product/3d/9e/99/8d3e3a3e3b3b3c3c3c3c3c3c3c3c3c3c.jpg',
-            remaining: 30,
-            total: 30,
-            tags: ['Vị cam', '110 ml'],
-        },
-    ];
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await axios.get<ApiResponse>('http://localhost:8080/avakids/api/v1/products/featured');
+                if (res.data && res.data.data) {
+                    // Ensure the data matches expected types, handle potential number/string mismatches if needed
+                    // For now assuming API returns compatible structure or we pass it through
+                    setProducts(res.data.data.map(convertProduct));
+                }
+            } catch (error) {
+                console.error("Failed to fetch flash sale products", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     const scrollCarousel = (direction: 'left' | 'right') => {
         if (carouselRef.current) {
@@ -87,6 +49,14 @@ const FlashSaleSection = () => {
             });
         }
     };
+
+    if (isLoading) {
+        return (
+            <section className="relative overflow-hidden rounded-xl bg-gradient-to-r shadow-lg dark:from-blue-900 dark:to-blue-800 h-[500px] animate-pulse bg-gray-200 dark:bg-gray-700">
+                {/* Placeholder for loading state */}
+            </section>
+        );
+    }
 
     return (
         <section className="relative overflow-hidden rounded-xl bg-gradient-to-r shadow-lg dark:from-blue-900 dark:to-blue-800">

@@ -3,7 +3,7 @@ interface ProductCardProps {
         id: number;
         name: string;
         originalPrice?: string;
-        salePrice: string;
+        salePrice?: string;
         discount?: string;
         image: string;
         remaining?: number;
@@ -11,6 +11,9 @@ interface ProductCardProps {
         tags?: string[];
         soldCount?: number;
         rating?: number;
+        hasVariants?: boolean | null;
+        minPrice?: string;
+        maxPrice?: string;
     };
     showProgress?: boolean;
 }
@@ -46,42 +49,62 @@ const ProductCard = ({ product, showProgress = false }: ProductCardProps) => {
                 </div>
             )}
 
-            {/* Progress Bar - Only for Flash Sale */}
-            {showProgress && product.remaining !== undefined && product.total !== undefined && (
-                <div className="mb-1.5">
-                    <div className="mb-0.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
-                        <div
-                            className="h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-pink-600"
-                            style={{ width: `${(product.remaining / product.total) * 100}%` }}
-                        />
-                    </div>
-                    <p className="text-[9px] text-gray-500">
-                        Còn {product.remaining}/{product.total} Suất
-                    </p>
-                </div>
-            )}
+            <div className="mb-1.5">
+                {showProgress && product.remaining !== undefined && product.total !== undefined ? (
+                    <>
+                        {/* Progress Bar */}
+                        <div className="mb-0.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                            <div
+                                className="h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-pink-600"
+                                style={{ width: `${(product.remaining / product.total) * 100}%` }}
+                            />
+                        </div>
+                        <p className="text-[9px] text-gray-500">
+                            Còn {product.remaining}/{product.total} Suất
+                        </p>
+                    </>
+                ) : (
+                    /* Sold Count & Rating */
+                    <div className="flex items-center justify-between">
+                        {product.soldCount !== undefined && (
+                            <p className="text-[9px] text-gray-500">
+                                Đã bán {product.soldCount}
+                            </p>
+                        )}
 
-            {/* Sold Count - For regular products */}
-            {!showProgress && product.soldCount !== undefined && (
-                <div className="mb-1.5">
-                    <p className="text-[9px] text-gray-500">
-                        Đã bán {product.soldCount}
-                    </p>
-                </div>
-            )}
-
-            {/* Price Section - Moved to bottom */}
-            <div className="mb-1.5 mt-auto">
-                {product.originalPrice && product.discount && (
-                    <div className="flex items-baseline gap-1">
-                        <span className="text-[9px] text-gray-400 line-through">{product.originalPrice}</span>
-                        <span className="rounded bg-red-500 px-1 py-0.5 text-[9px] font-bold text-white">
-                            {product.discount}
-                        </span>
+                        {product.rating !== undefined && product.rating > 0 && (
+                            <div className="flex items-center gap-0.5">
+                                <span className="text-[10px] text-yellow-400">★</span>
+                                <span className="text-[9px] text-gray-500 dark:text-gray-400">
+                                    {product.rating}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 )}
-                <div className="text-base font-bold text-red-600">{product.salePrice}</div>
             </div>
+
+            {/* Price section */}
+            <div className="mb-1.5 mt-auto">
+                {product.hasVariants ? (
+                    <div className="text-sm font-bold text-red-600">
+                        {product.minPrice} - {product.maxPrice}
+                    </div>
+                ) : (
+                    <>
+                        {product.originalPrice && product.discount && (
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-[9px] text-gray-400 line-through">{product.originalPrice}</span>
+                                <span className="rounded bg-red-500 px-1 py-0.5 text-[9px] font-bold text-white">
+                                    {product.discount}
+                                </span>
+                            </div>
+                        )}
+                        <div className="text-base font-bold text-red-600">{product.salePrice}</div>
+                    </>
+                )}
+            </div>
+
 
             {/* Buy Button */}
             <button
