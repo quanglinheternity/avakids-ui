@@ -12,7 +12,7 @@ interface ApiResponse {
 }
 
 const FlashSaleSection = () => {
-    const [activeTab, setActiveTab] = useState<'ongoing' | 'upcoming'>('ongoing');
+
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const carouselRef = useRef<HTMLDivElement>(null);

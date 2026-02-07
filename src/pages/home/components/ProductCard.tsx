@@ -18,9 +18,11 @@ interface ProductCardProps {
     showProgress?: boolean;
 }
 
+import { Link } from 'react-router-dom';
+
 const ProductCard = ({ product, showProgress = false }: ProductCardProps) => {
     return (
-        <div className="group h-[320px] w-[165px] flex-shrink-0 rounded-lg bg-white p-2.5 shadow-md transition hover:shadow-xl dark:bg-gray-700 flex flex-col">
+        <Link to={`/product/${product.id}`} className="group h-[320px] w-[165px] flex-shrink-0 flex flex-col rounded-lg bg-white p-2.5 shadow-md transition hover:shadow-xl dark:bg-gray-700">
             {/* Product Image */}
             <div className="mb-1.5 flex h-[120px] w-full items-center justify-center overflow-hidden rounded-lg bg-white p-1">
                 <img
@@ -113,7 +115,7 @@ const ProductCard = ({ product, showProgress = false }: ProductCardProps) => {
             >
                 Chọn mua
             </button>
-        </div>
+        </Link>
     );
 };
 
