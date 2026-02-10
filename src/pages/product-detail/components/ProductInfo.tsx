@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import api from '../../../services/api';
 import { type ProductDetail, type ProductOption } from './convertProductDetail';
+import { useCart } from '../../../contexts/CartContext';
 
 interface ProductInfoProps {
     product: ProductDetail;
@@ -12,6 +13,7 @@ interface ProductInfoProps {
 const ProductInfo = ({ product, allOptions, onOptionChange }: ProductInfoProps) => {
     const [quantity, setQuantity] = useState(1);
     const [isAdding, setIsAdding] = useState(false);
+    const { refreshCart } = useCart();
 
     const handleOptionSelect = (optionId: number, valueId: number) => {
         onOptionChange(optionId, valueId);
@@ -26,6 +28,7 @@ const ProductInfo = ({ product, allOptions, onOptionChange }: ProductInfoProps) 
                 variantId: product.id,
                 quantity: quantity
             });
+            await refreshCart();
             alert('Đã thêm sản phẩm vào giỏ hàng!');
         } catch (error) {
             if (axios.isAxiosError(error)) {

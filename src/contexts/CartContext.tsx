@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import api from '../services/api';
 
-// Define the shape of a product (adjust based on your actual Product type if available)
 export interface Product {
     id: number | string;
     name: string;
@@ -10,16 +10,23 @@ export interface Product {
     slug?: string;
 }
 
-export interface CartItem extends Product {
+export interface CartItem {
+    id: number;
+    variantId: number;
+    name: string;
+    price: number;
+    originalPrice?: number;
     quantity: number;
+    subtotal: number;
+    image: string; // Placeholder for now as requested
 }
 
 interface CartContextType {
     cartItems: CartItem[];
-    addToCart: (product: Product, quantity?: number) => void;
-    removeFromCart: (productId: number | string) => void;
-    updateQuantity: (productId: number | string, quantity: number) => void;
-    clearCart: () => void;
+    refreshCart: () => Promise<void>;
+    removeFromCart: (cartItemId: number) => Promise<void>;
+    updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
+    clearCart: () => Promise<void>;
     totalItems: number;
     totalPrice: number;
     totalDiscount: number;
@@ -29,88 +36,81 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-    const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-        try {
-            const storedCart = localStorage.getItem('cart');
-            return storedCart ? JSON.parse(storedCart) : [];
-        } catch (error) {
-            console.error("Failed to parse cart from localStorage", error);
-            return [];
-        }
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [summary, setSummary] = useState({
+        totalItems: 0,
+        totalAmount: 0
     });
 
-    useEffect(() => {
+    const refreshCart = async () => {
         try {
-            localStorage.setItem('cart', JSON.stringify(cartItems));
-        } catch (error) {
-            console.error("Failed to save cart to localStorage", error);
-        }
-    }, [cartItems]);
+            const response = await api.get('/cart-items/getAllSummary');
+            const data = response.data.data;
 
-    // Initial dummy data for testing if empty
-    useEffect(() => {
-        if (cartItems.length === 0) {
-            // Optional: seeding for demonstration purposes as requested by user context
-            // You can remove this block later
+            const mappedItems: CartItem[] = (data.items || []).map((item: any) => ({
+                id: item.id,
+                variantId: item.variantId,
+                name: item.variantName,
+                price: item.variantPrice,
+                quantity: item.quantity,
+                subtotal: item.subtotal,
+                image: item.productImage // Placeholder as requested
+            }));
+
+            setCartItems(mappedItems);
+            setSummary({
+                totalItems: data.totalItems || 0,
+                totalAmount: data.totalAmount || 0
+            });
+        } catch (error) {
+            console.error("Failed to fetch cart summary", error);
         }
+    };
+
+    useEffect(() => {
+        refreshCart();
     }, []);
 
-
-    const addToCart = (product: Product, quantity: number = 1) => {
-        setCartItems(prevItems => {
-            const existingItem = prevItems.find(item => item.id === product.id);
-            if (existingItem) {
-                return prevItems.map(item =>
-                    item.id === product.id
-                        ? { ...item, quantity: item.quantity + quantity }
-                        : item
-                );
-            }
-            return [...prevItems, { ...product, quantity }];
-        });
-    };
-
-    const removeFromCart = (productId: number | string) => {
-        setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
-    };
-
-    const updateQuantity = (productId: number | string, newQuantity: number) => {
-        if (newQuantity < 1) {
-            return; // Optionally remove if quantity becomes 0, but usually min is 1
+    const removeFromCart = async (cartItemId: number) => {
+        try {
+            await api.delete(`/cart-items/deleteItems/${cartItemId}`);
+            await refreshCart();
+        } catch (error) {
+            console.error("Failed to remove item", error);
         }
-        setCartItems(prevItems =>
-            prevItems.map(item =>
-                item.id === productId ? { ...item, quantity: newQuantity } : item
-            )
-        );
     };
 
-    const clearCart = () => {
-        setCartItems([]);
+    const updateQuantity = async (cartItemId: number, newQuantity: number) => {
+        if (newQuantity < 1) return;
+        try {
+            // Using placeholder logic for update endpoint, adjust as needed
+            await api.put(`/cart-items/updateCart/${cartItemId}`, { quantity: newQuantity });
+            await refreshCart();
+        } catch (error) {
+            console.error("Failed to update quantity", error);
+        }
     };
 
-    const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-
-    const totalPrice = cartItems.reduce((total, item) => total + (item.originalPrice || item.price) * item.quantity, 0);
-
-    // Assuming 'price' is the discounted price and 'originalPrice' is the list price.
-    // If originalPrice is missing, we assume no discount.
-    const finalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-
-    const totalDiscount = totalPrice - finalPrice;
-
+    const clearCart = async () => {
+        try {
+            await api.delete('/cart-items/clear');
+            await refreshCart();
+        } catch (error) {
+            console.error("Failed to clear cart", error);
+        }
+    };
 
     return (
         <CartContext.Provider value={{
             cartItems,
-            addToCart,
+            refreshCart,
             removeFromCart,
             updateQuantity,
             clearCart,
-            totalItems,
-            totalPrice,
-            totalDiscount,
-            finalPrice
+            totalItems: summary.totalItems,
+            totalPrice: summary.totalAmount, // Map totalAmount to totalPrice as fallback
+            totalDiscount: 0, // Backend doesn't provide this yet
+            finalPrice: summary.totalAmount
         }}>
             {children}
         </CartContext.Provider>

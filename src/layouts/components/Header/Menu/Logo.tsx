@@ -1,8 +1,10 @@
+import { Link } from "react-router-dom";
+
 const Logo = () => {
     return (
-        <a href="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
             <i className="iconlogo-headerDt"></i>
-        </a>
+        </Link>
     );
 };
 export default Logo;

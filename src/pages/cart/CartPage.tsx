@@ -1,11 +1,53 @@
-import { useCart } from "../../contexts/CartContext";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../../contexts/CartContext";
+import { useAddress } from "../../contexts/AddressContext";
+import ConfirmationModal from "./components/ConfirmationModal";
+import AddressModal from "./components/AddressModal";
 
 const CartPage = () => {
-    const { cartItems, removeFromCart, updateQuantity, totalPrice, totalDiscount, finalPrice, clearCart, totalItems } = useCart();
+    const {
+        cartItems,
+        removeFromCart,
+        updateQuantity,
+        totalPrice,
+        totalDiscount,
+        finalPrice,
+        clearCart,
+        totalItems
+    } = useCart();
+
+    const { selectedAddress } = useAddress();
+
+    // Modal state
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalAction, setModalAction] = useState<(() => void) | null>(null);
+    const [modalMessage, setModalMessage] = useState("");
+
+    // Address modal state
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+    };
+
+    const openDeleteModal = (itemId: number, itemName: string) => {
+        setModalMessage(`Bạn có chắc muốn bỏ sản phẩm "${itemName}"?`);
+        setModalAction(() => () => removeFromCart(Number(itemId)));
+        setIsModalOpen(true);
+    };
+
+    const openClearAllModal = () => {
+        setModalMessage("Bạn có chắc muốn xóa tất cả sản phẩm khỏi giỏ hàng?");
+        setModalAction(() => () => clearCart());
+        setIsModalOpen(true);
+    };
+
+    const handleConfirmAction = () => {
+        if (modalAction) {
+            modalAction();
+        }
+        setIsModalOpen(false);
     };
 
     if (cartItems.length === 0) {
@@ -19,132 +61,154 @@ const CartPage = () => {
 
     return (
         <div>
-            <div className="mx-auto max-w-7xl">
-                <div className="min-h-[60px] w-full px-4">
+            <div className="mx-auto max-w-7xl px-4">
+                <div className="min-h-[60px] w-full">
                     <p className="py-6 text-24 font-semibold text-ink-dark">Giỏ hàng</p>
                 </div>
-                <div className="">
-                    <div className="flex items-start justify-between">
-                        <div className="mb-4 mr-4 flex w-[calc(100%_-_432px)] max-w-[848px] flex-col gap-4">
-                            <div className="overflow-hidden rounded-2xl bg-white p-[24px_30px]">
-                                <h3 className="mb-4 text-18 font-600 leading-22 text-black-100">Danh sách sản phẩm</h3>
+
+                <div className="flex flex-col lg:flex-row items-start gap-6">
+                    {/* List Items */}
+                    <div className="w-full lg:flex-1">
+                        <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-sm">
+                            <h3 className="mb-4 text-18 font-bold text-gray-800">Danh sách sản phẩm</h3>
+                            <div className="divide-y divide-gray-100">
                                 {cartItems.map((item) => (
-                                    <div key={item.id} className="w-[calc(100%_-_20px)] border-b border-grayBorder-100 py-16px last:border-b-0 !border-none">
-                                        <div className="flex items-start px-8px">
-                                            <div className="w-[80px] cursor-pointer">
-                                                <div className="flex flex-col items-center gap-4px">
-                                                    <div className="cursor-pointer">
-                                                        <div className="relative h-auto overflow-hidden" style={{ height: '80px', width: '80px' }}>
-                                                            <picture>
-                                                                <img src={item.image} alt={item.name} loading="lazy" fetchPriority="auto" decoding="async" className="object-contain transition-opacity duration-300 opacity-100" style={{ width: '80px', height: '80px' }} />
-                                                            </picture>
-                                                        </div>
-                                                    </div>
-                                                    <div onClick={() => removeFromCart(item.id)} className="cursor-pointer text-14 text-gray-700 hover:text-red-500">Xóa</div>
-                                                </div>
+                                    <div key={item.id} className="py-4">
+                                        <div className="flex items-start gap-4">
+                                            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border">
+                                                <img src={item.image} alt={item.name} className="h-full w-full object-contain" />
                                             </div>
-                                            <div className="w-[calc(100%_-_68px)] pl-4">
-                                                <div className="mb-2 items-start justify-between gap-4 grid grid-cols-[auto_200px]">
-                                                    <p className="font-400 text-14 text-black-100 line-clamp-2 cursor-pointer">{item.name}</p>
-                                                    <div className="flex items-center justify-end gap-8px">
-                                                        <span className="text-16 font-600 leading-24 text-primaryNeutral">{formatPrice(item.price)}</span>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between gap-2">
+                                                    <p className="text-14 font-medium text-gray-900 line-clamp-2">{item.name}</p>
+                                                    <div className="text-right">
+                                                        <div className="text-15 font-bold text-pink-600">{formatPrice(item.price)}</div>
                                                         {item.originalPrice && item.originalPrice > item.price && (
-                                                            <span className="text-14 font-500 leading-20 text-gray-700 line-through">{formatPrice(item.originalPrice)}</span>
+                                                            <div className="text-12 text-gray-400 line-through">{formatPrice(item.originalPrice)}</div>
                                                         )}
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-3 w-3 text-pink-500">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                                                        </svg>
                                                     </div>
                                                 </div>
-                                                <div className="flex justify-between gap-4">
-                                                    <div></div>
-                                                    <div className="flex flex-col items-end">
-                                                        <div className="flex items-center justify-between gap-3">
-                                                            <button
-                                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                                className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 disabled:opacity-50"
-                                                                disabled={item.quantity <= 1}
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                                                </svg>
-                                                            </button>
-                                                            <span className="min-w-5 text-center text-14 font-semibold">{item.quantity}</span>
-                                                            <button
-                                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E12D39] text-white hover:bg-red-600"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
+                                                <div className="mt-3 flex items-center justify-between">
+                                                    <button
+                                                        onClick={() => openDeleteModal(Number(item.id), item.name)}
+                                                        className="text-13 text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={() => updateQuantity(Number(item.id), item.quantity - 1)}
+                                                            className="flex h-7 w-7 items-center justify-center rounded-full border bg-gray-50 text-gray-600 disabled:opacity-30 cursor-pointer"
+                                                            disabled={item.quantity <= 1}
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="min-w-[20px] text-center text-14 font-bold">{item.quantity}</span>
+                                                        <button
+                                                            onClick={() => updateQuantity(Number(item.id), item.quantity + 1)}
+                                                            className="flex h-7 w-7 items-center justify-center rounded-full bg-pink-500 text-white hover:bg-pink-600 cursor-pointer"
+                                                        >
+                                                            +
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
-
-                                <div className="my-3"></div>
-                                <div className="flex items-center justify-center">
-                                    <button onClick={clearCart} className="text-16 text-[#E12D39] underline">Xóa tất cả sản phẩm</button>
-                                </div>
-                            </div>
-                        </div>
-                        {/* Summary Section */}
-                        <div className="sticky top-[124px] w-full max-w-[416px] self-start space-y-4">
-                            <div className="rounded-xl bg-white p-4">
-                                <div className="flex items-center gap-8">
-                                    <label className="flex cursor-pointer items-center gap-3">
-                                        <div className="relative flex items-center justify-center">
-                                            <input className="peer h-5 w-5 appearance-none rounded-full border-2 border-gray-300 checked:border-[#E12D39]" type="radio" value="2" defaultChecked name="radio-group" />
-                                            <div className="absolute h-2.5 w-2.5 rounded-full bg-[#E12D39] opacity-0 peer-checked:opacity-100"></div>
-                                        </div>
-                                        <span className="text-14 text-gray-700">Giao tận nơi</span>
-                                    </label>
-                                    <label className="flex cursor-pointer items-center gap-3">
-                                        <div className="relative flex items-center justify-center">
-                                            <input className="peer h-5 w-5 appearance-none rounded-full border-2 border-gray-300 checked:border-[#E12D39]" type="radio" value="1" name="radio-group" />
-                                            <div className="absolute h-2.5 w-2.5 rounded-full bg-[#E12D39] opacity-0 peer-checked:opacity-100"></div>
-                                        </div>
-                                        <span className="text-14 text-gray-700">Nhận tại siêu thị</span>
-                                    </label>
-                                </div>
                             </div>
 
-                            <div className="rounded-xl bg-white p-4">
-                                <div className="flex w-full items-center justify-between">
-                                    <span className="text-18 font-normal text-gray-700">Thông tin nhận hàng</span>
-                                    <button className="text-14 text-blue-500 hover:underline">Thêm ngay</button>
-                                </div>
-                                <div className="mt-2 text-14 text-red-500">
-                                    Vui lòng nhập thông tin nhận hàng
-                                </div>
-                                <p className="mt-1 text-14 text-gray-500">Cổ đô, An Khánh, Hà Nội</p>
-                            </div>
-
-                            <div className="rounded-xl bg-white p-4">
-                                <div className="mb-3 flex items-center justify-between text-14 text-gray-600">
-                                    <span>Tổng tiền hàng</span>
-                                    <span>{formatPrice(totalPrice)}</span>
-                                </div>
-                                <div className="mb-3 flex items-center justify-between text-14">
-                                    <span className="text-gray-600">Giảm giá sản phẩm</span>
-                                    <span className="text-green-600">-{formatPrice(totalDiscount)}</span>
-                                </div>
-                                <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-                                    <span className="text-14 text-gray-600">Tạm tính tổng thanh toán</span>
-                                    <span className="text-18 font-bold text-green-600">{formatPrice(finalPrice)}</span>
-                                </div>
-                                <button className="mt-4 w-full rounded-lg bg-[#E12D39] py-3 text-16 font-bold text-white hover:bg-red-600 transition-colors">
-                                    Thanh toán ({totalItems})
+                            <div className="mt-6 border-t pt-4 text-center cursor-pointer">
+                                <button onClick={openClearAllModal} className="text-14 text-red-500 hover:underline">
+                                    Xóa tất cả sản phẩm
                                 </button>
                             </div>
                         </div>
                     </div>
+
+                    {/* Summary Sidebar */}
+                    <div className="w-full lg:w-[400px] space-y-4">
+                        {/* Delivery Info */}
+                        <div className="rounded-2xl bg-white p-5 shadow-sm">
+                            <div className="mb-4 flex items-center gap-6">
+                                <label className="flex cursor-pointer items-center gap-2">
+                                    <input type="radio" name="delivery" defaultChecked className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-500" />
+                                    <span className="text-14 font-medium text-gray-700">Giao tận nơi</span>
+                                </label>
+                                <label className="flex cursor-pointer items-center gap-2">
+                                    <input type="radio" name="delivery" className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-500" />
+                                    <span className="text-14 font-medium text-gray-700">Tại siêu thị</span>
+                                </label>
+                            </div>
+
+                            <div className="border-t pt-4">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-15 font-bold text-gray-800">Thông tin nhận hàng</h4>
+                                    <button
+                                        onClick={() => setIsAddressModalOpen(true)}
+                                        className="text-13 font-semibold text-blue-600 hover:text-blue-700"
+                                    >
+                                        {selectedAddress ? "Thay đổi" : "Thêm ngay"}
+                                    </button>
+                                </div>
+
+                                {selectedAddress ? (
+                                    <div className="mt-3 rounded-xl bg-gray-50 p-3 text-13">
+                                        <div className="flex items-center gap-2 font-bold text-gray-900">
+                                            <span>{selectedAddress.recipientName}</span>
+                                            <span className="h-3 w-px bg-gray-300"></span>
+                                            <span>{selectedAddress.phone}</span>
+                                        </div>
+                                        <p className="mt-1 text-gray-600 line-clamp-2">
+                                            {selectedAddress.address}, {selectedAddress.district}, {selectedAddress.city}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="mt-3 rounded-xl bg-red-50 p-3 text-13 text-red-600 font-medium">
+                                        Vui lòng nhập thông tin nhận hàng
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Price Details */}
+                        <div className="rounded-2xl bg-white p-5 shadow-sm">
+                            <div className="space-y-3">
+                                <div className="flex justify-between text-14 text-gray-600">
+                                    <span>Tổng tiền hàng</span>
+                                    <span>{formatPrice(totalPrice)}</span>
+                                </div>
+                                <div className="flex justify-between text-14 text-gray-600">
+                                    <span>Giảm giá trực tiếp</span>
+                                    <span className="text-green-600">-{formatPrice(totalDiscount)}</span>
+                                </div>
+                                <div className="border-t pt-3 flex justify-between items-center">
+                                    <span className="text-15 font-bold text-gray-800">Tổng thanh toán</span>
+                                    <div className="text-right">
+                                        <div className="text-20 font-bold text-pink-600">{formatPrice(finalPrice)}</div>
+                                        <div className="text-12 text-gray-400">(Đã bao gồm VAT)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button className="mt-6 w-full rounded-xl bg-pink-600 py-4 text-16 font-bold text-white shadow-lg shadow-pink-100 hover:bg-pink-700 transition-all active:scale-[0.98]">
+                                THANH TOÁN ({totalItems})
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleConfirmAction}
+                message={modalMessage}
+            />
+
+            <AddressModal
+                isOpen={isAddressModalOpen}
+                onClose={() => setIsAddressModalOpen(false)}
+            />
         </div>
     );
 };

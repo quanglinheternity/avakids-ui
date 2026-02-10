@@ -1,6 +1,7 @@
 import { BannerProvider } from "./contexts/BannerContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import { AddressProvider } from "./contexts/AddressContext";
 import DefaultLayout from "./layouts/components/DefaultLayout/DefaultLayout"
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
@@ -14,18 +15,20 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <CartProvider>
-          <BannerProvider>
-            <Routes>
-              <Route path="/" element={<DefaultLayout />}>
-                <Route index element={<Home />} />
-                <Route path="product/:id" element={<ProductDetailPage />} />
-                <Route path="login" element={<LoginPage />} />
-                <Route path="cart" element={<CartPage />} />
-              </Route>
-            </Routes>
-          </BannerProvider>
-        </CartProvider>
+        <AddressProvider>
+          <CartProvider>
+            <BannerProvider>
+              <Routes>
+                <Route path="/" element={<DefaultLayout />}>
+                  <Route index element={<Home />} />
+                  <Route path="product/:id" element={<ProductDetailPage />} />
+                  <Route path="login" element={<LoginPage />} />
+                  <Route path="cart" element={<CartPage />} />
+                </Route>
+              </Routes>
+            </BannerProvider>
+          </CartProvider>
+        </AddressProvider>
       </AuthProvider>
     </>
 
