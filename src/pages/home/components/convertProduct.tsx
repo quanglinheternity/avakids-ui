@@ -45,7 +45,7 @@ const convertProduct = (p: ProductResponse): Product => {
             ? ((p.price - p.salePrice) / p.price * 100).toFixed(2) + "%"
             : undefined,
         salePrice: basePrice.toLocaleString("vi-VN") + "₫",
-        tags: ["ml", "xl"],
+        tags: ["180 ml", "Từ 2 tuổi"],
 
         remaining: p.totalQuantity,
         total: p.totalQuantity,

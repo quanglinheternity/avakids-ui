@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../services/api';
 import ProductCard from './ProductCard';
 import convertProduct from './convertProduct';
 import type { Product, ProductResponse } from './convertProduct';
+import { useAuth } from '../../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 interface ApiResponse {
     code: number;
@@ -11,30 +13,77 @@ interface ApiResponse {
 }
 
 const SuggestedProductsSection = () => {
+    const { isAuthenticated } = useAuth();
     const [activeTab, setActiveTab] = useState<'suggested' | 'rebuy' | 'favorite'>('suggested');
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchProducts = async () => {
+            setIsLoading(true);
             try {
-                const res = await axios.get<ApiResponse>('http://localhost:8080/avakids/api/v1/products/recommend?limit=20');
+                let endpoint = '/products/recommend?limit=20';
+
+                if (activeTab === 'rebuy' && isAuthenticated) {
+                    endpoint = '/products/rebuy?limit=20'; // Assuming this endpoint exists
+                } else if (activeTab === 'favorite' && isAuthenticated) {
+                    endpoint = '/products/favorites?limit=20'; // Assuming this endpoint exists
+                }
+
+                // If tab requires auth and user is NOT authenticated, don't fetch from private endpoints
+                if ((activeTab === 'rebuy' || activeTab === 'favorite') && !isAuthenticated) {
+                    setProducts([]);
+                    setIsLoading(false);
+                    return;
+                }
+
+                const res = await api.get<ApiResponse>(endpoint);
                 if (res.data && res.data.data) {
                     setProducts(res.data.data.map(convertProduct));
                 }
             } catch (error) {
-                console.error("Failed to fetch suggested products", error);
+                console.error(`Failed to fetch ${activeTab} products`, error);
+                setProducts([]);
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchProducts();
-    }, []);
+    }, [activeTab, isAuthenticated]);
+
+    const renderEmptyState = () => {
+        if (!isAuthenticated && (activeTab === 'rebuy' || activeTab === 'favorite')) {
+            return (
+                <div className="flex flex-col items-center justify-center py-12">
+                    <img
+                        src="https://cdnv2.tgdd.vn/mwg-static/common/Common/01/7a/017aa5a36cbb0f3def7d3a913965ec10.png"
+                        alt="Login Required"
+                        className="mb-4 h-24 w-24 opacity-50 gray-scale"
+                    />
+                    <p className="mb-4 text-center text-gray-500">
+                        Vui lòng đăng nhập để xem danh sách {activeTab === 'rebuy' ? 'mua lại' : 'yêu thích'} của bạn
+                    </p>
+                    <Link
+                        to="/login"
+                        className="rounded-full bg-pink-600 px-6 py-2 text-white transition hover:bg-pink-700"
+                    >
+                        Đăng nhập ngay
+                    </Link>
+                </div>
+            );
+        }
+        return (
+            <div className="flex flex-col items-center justify-center py-12">
+                <p className="text-gray-500">Không có sản phẩm nào để hiển thị</p>
+            </div>
+        );
+    };
 
     if (isLoading) {
         return (
-            <section className="relative overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800 h-[500px] animate-pulse bg-gray-200 dark:bg-gray-700">
+            <section className="relative overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800 h-[500px] bg-gray-50 border border-gray-100 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600"></div>
             </section>
         );
     }
@@ -101,11 +150,15 @@ const SuggestedProductsSection = () => {
 
             {/* Products Grid */}
             <div className="bg-gray-50 px-4 py-6 dark:bg-gray-900">
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {products.map((product) => (
-                        <ProductCard key={product.id} product={product} showProgress={false} />
-                    ))}
-                </div>
+                {products.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                        {products.map((product) => (
+                            <ProductCard key={product.id} product={product} showProgress={false} />
+                        ))}
+                    </div>
+                ) : (
+                    renderEmptyState()
+                )}
             </div>
         </section>
     );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Tippy from '@tippyjs/react/headless';
-import axios from 'axios';
+import api from '../../../services/api';
 
 interface Category {
     id: number;
@@ -35,7 +35,7 @@ const Sidebar = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const res = await axios.get<ApiResponse>('http://localhost:8080/avakids/api/v1/category/list');
+                const res = await api.get<ApiResponse>('/category/list');
                 setCategories(res.data.data);
             } catch (error) {
                 console.error("Failed to fetch categories", error);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../services/api';
 import ArticleCard from './ArticleCard';
+
 
 interface Article {
     id: number;
@@ -34,7 +35,7 @@ const BlogSection = () => {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const res = await axios.get<ApiResponse>('http://localhost:8080/avakids/api/v1/blogs/list');
+                const res = await api.get<ApiResponse>('/blogs/list');
                 if (res.data && res.data.data) {
                     const mappedArticles: Article[] = res.data.data.content.map((blog) => ({
                         id: blog.id,

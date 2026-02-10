@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../services/api';
 import ProductCard from './ProductCard';
 import convertProduct from './convertProduct';
 import type { Product, ProductResponse } from './convertProduct';
@@ -20,7 +20,7 @@ const FlashSaleSection = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await axios.get<ApiResponse>('http://localhost:8080/avakids/api/v1/products/featured');
+                const res = await api.get<ApiResponse>('/products/featured');
                 if (res.data && res.data.data) {
                     // Ensure the data matches expected types, handle potential number/string mismatches if needed
                     // For now assuming API returns compatible structure or we pass it through

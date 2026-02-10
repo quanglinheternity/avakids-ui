@@ -1,35 +1,130 @@
 import { useParams, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import api from '../../services/api';
 import ProductGallery from './components/ProductGallery';
 import ProductInfo from './components/ProductInfo';
 import ProductSpecs from './components/ProductSpecs';
 import ProductReviews from './components/ProductReviews';
 import RelatedProducts from './components/RelatedProducts';
+import convertProduct, { type ProductDetail as ProductDetailBase, type ProductOption } from './components/convertProductDetail';
+
+interface ProductImage {
+    id: number;
+    imageUrl: string;
+    isMain: boolean;
+    displayOrder: number;
+}
+
+interface ProductDetail extends ProductDetailBase {
+    images: string[];
+}
 
 const ProductDetailPage = () => {
     const { id } = useParams();
+    const [product, setProduct] = useState<ProductDetail | null>(null);
+    const [allOptions, setAllOptions] = useState<ProductOption[]>([]);
+    const [selectedOptionMap, setSelectedOptionMap] = useState<Record<number, number>>({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Mock Data based on screenshot
-    const product = {
-        id: Number(id) || 123785,
-        name: "Tã dán Huggies Skin Perfect size NB 70 miếng (Dưới 5 kg) - Giao bao bì +0/+4/+6 ngẫu nhiên",
-        price: 166500,
-        originalPrice: 185000,
-        discount_percentage: 10,
-        rating: 5,
-        rating_count: 7,
-        sold_count: 51700,
-        images: [
-            "https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/pim/cdn/images/202512/ta-quan-huggies-nature-made-overnite-size-xl-38-mieng-12-18-kg093630.jpg",
-            "https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/mwg-static/avakids/Products/Images/2427/335737/ta-quan-huggies-nature-made-overnite-size-xl-38-mieng-12-18-2-638792860689835972.jpg",
-            "https://cdn.tgdd.vn/Products/Images/2653/226590/ta-dan-huggies-dry-size-nb-70-mieng-duoi-5kg-3.jpg",
-            "https://cdn.tgdd.vn/Products/Images/2653/226590/ta-dan-huggies-dry-size-nb-70-mieng-duoi-5kg-1.jpg",
-            "https://cdn.tgdd.vn/Products/Images/2653/226590/ta-dan-huggies-dry-size-nb-70-mieng-duoi-5kg-1.jpg",
-        ],
-        options: [
-            { name: "Kích thước", values: ["Dưới 5 kg", "5-7 kg", "7-10 kg"] },
-            { name: "Số miếng", values: ["70 miếng", "100 miếng"] }
-        ]
+    useEffect(() => {
+        const fetchProductData = async () => {
+            if (!id) return;
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                // Parallel fetching for better performance
+                const [productRes, imagesRes, optionsRes] = await Promise.all([
+                    api.get(`/products/${id}/select-variant-value`),
+                    api.get(`/product-images/product/${id}`),
+                    api.get(`/products/${id}/options/list`),
+                ]);
+
+                const productBaseData = productRes.data.data;
+                const imagesData: ProductImage[] = imagesRes.data.data;
+                const optionsData: ProductOption[] = optionsRes.data.data;
+
+                const convertedProduct = convertProduct(productBaseData);
+
+                setProduct({
+                    ...convertedProduct,
+                    images: imagesData.map(img => img.imageUrl)
+                });
+                setAllOptions(optionsData);
+
+                // Initialize selection map from the current variant
+                const initialMap: Record<number, number> = {};
+                // We need to match selected values back to their parent options
+                optionsData.forEach(opt => {
+                    const selectedValue = convertedProduct.selectedOptions.find(so =>
+                        opt.values.some(v => v.id === so.id)
+                    );
+                    if (selectedValue) {
+                        initialMap[opt.id] = selectedValue.id;
+                    }
+                });
+                setSelectedOptionMap(initialMap);
+
+            } catch (err: any) {
+                console.error("Failed to fetch product details", err);
+                setError("Không thể tải thông tin sản phẩm. Vui lòng thử lại sau.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProductData();
+    }, [id]);
+
+    const handleOptionChange = async (optionId: number, valueId: number) => {
+        if (!id || !product) return;
+
+        const newMap = { ...selectedOptionMap, [optionId]: valueId };
+        setSelectedOptionMap(newMap);
+
+        try {
+            // Using URLSearchParams to handle multiple parameters with the same name if needed,
+            // but standard axios params with an array also works for most backends.
+            // Based on user request format: optionValueIds=3&optionValueIds=2
+            const params = new URLSearchParams();
+            Object.values(newMap).forEach(vId => {
+                params.append('optionValueIds', vId.toString());
+            });
+
+            const res = await api.get(`/products/${id}/select-variant-value`, {
+                params: params
+            });
+
+            const newVariantData = res.data.data;
+            const convertedVariant = convertProduct(newVariantData);
+
+            setProduct(prev => prev ? {
+                ...convertedVariant,
+                images: prev.images // Keep the existing images if the API doesn't return them
+            } : null);
+
+        } catch (err) {
+            console.error("Failed to fetch variant", err);
+        }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-pink-600"></div>
+            </div>
+        );
+    }
+
+    if (error || !product) {
+        return (
+            <div className="flex h-screen flex-col items-center justify-center bg-gray-50 p-4 text-center">
+                <p className="mb-4 text-gray-600">{error || "Sản phẩm không tồn tại"}</p>
+                <Link to="/" className="text-pink-600 hover:underline">Quay lại trang chủ</Link>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-gray-50 pb-10">
@@ -54,7 +149,11 @@ const ProductDetailPage = () => {
 
                     {/* Right Column: Info */}
                     <div className="ml-4 flex h-auto w-[540px] flex-col gap-[20px]">
-                        <ProductInfo product={product} />
+                        <ProductInfo
+                            product={product}
+                            allOptions={allOptions}
+                            onOptionChange={handleOptionChange}
+                        />
                     </div>
                 </div>
             </div>

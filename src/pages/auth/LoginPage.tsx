@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LoginPage = () => {
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [agreed, setAgreed] = useState(false);
@@ -30,16 +32,24 @@ const LoginPage = () => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:8080/avakids/api/v1/auth/login', {
+            const response = await api.post('/auth/login', {
                 email,
                 password
             });
 
             if (response.status === 200) {
-                // Assuming successful login returns a token or user data
+                // Assuming successful login returns a token and potentially a refreshToken inside response.data.data
                 console.log('Login successful:', response.data);
-                // Redirect to home or handle token storage here
-                // localStorage.setItem('token', response.data.token); 
+
+                const loginData = response.data.data;
+
+                // Call AuthContext login to update global state and cookies
+                login({
+                    email: email,
+                    token: loginData.token,
+                    refreshToken: loginData.refreshToken
+                });
+
                 alert('Đăng nhập thành công!');
                 navigate('/');
             }
@@ -52,9 +62,9 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="max-w-[1200px] mx-auto min-h-screen relative !min-h-[700px]" style={{ paddingTop: '20px' }}>
+        <div className="max-w-[1200px] mx-auto min-h-screen relative " style={{ paddingTop: '20px' }}>
             <div className="md:m-auto md:w-full">
-                <div className="mx-auto px-[8px] !mt-[16px] !px-0">
+                <div className="mx-auto px-[8px] !mt-[24px] !px-0 pt-[34px]">
                     <div className="flex gap-0 !gap-[24px]">
                         <div className="h-auto w-[58%]">
                             <div className="relative overflow-hidden shrink-0">

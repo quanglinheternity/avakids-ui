@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import axios from 'axios';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import api from '../services/api';
 
 export interface Banner {
     id: number;
@@ -38,7 +38,7 @@ export const BannerProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setIsLoading(true);
         try {
             // Fetch all banners sorted by displayOrder
-            const res = await axios.get<ApiResponse>('http://localhost:8080/avakids/api/v1/banners/list');
+            const res = await api.get<ApiResponse>('/banners/list');
             setBanners(res.data.data);
         } catch (error) {
             console.error("Failed to fetch banners", error);

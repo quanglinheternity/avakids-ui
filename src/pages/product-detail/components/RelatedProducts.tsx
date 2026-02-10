@@ -1,37 +1,53 @@
 
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import api from '../../../services/api';
+import convertProduct, { type Product } from '../../home/components/convertProduct';
+import ProductCard from '../../home/components/ProductCard';
 
 const RelatedProducts = () => {
-    // Mock data for related products based on HTML
-    const products = [
-        {
-            id: 1,
-            name: "Áo tay dài unisex IQ Baby visco trắng",
-            price: 19000,
-            originalPrice: 39000,
-            discount: 51,
-            sold: "4.1k",
-            image: "https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/Products/Images/10318/327471/ao-tay-dai-in-thuyen-iq-baby-mau-trang-thumb-600x600.jpg"
-        },
-        {
-            id: 2,
-            name: "Quần lót vải cotton mặc 1 lần KACHOOBABY",
-            price: 20000,
-            originalPrice: 34000,
-            discount: 41,
-            sold: "28.2k",
-            image: "https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/Products/Images/11580/279950/quan-lot-cotton-mac-1-lan-kachoo-baby-size-xxl-bich-5-cai-010722-072836-600x600.jpg"
-        },
-        {
-            id: 3,
-            name: "Chai nước rửa bình sữa D-nee",
-            price: 78200,
-            originalPrice: 92000,
-            discount: 15,
-            sold: "67.3k",
-            image: "https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/Products/Images/10410/263861/nuoc-rua-binh-sua-d-nee-chai-500-ml-070623-041933-600x600.jpg"
+    const { id } = useParams();
+    const [products, setProducts] = useState<Product[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const carouselRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const fetchRelatedProducts = async () => {
+            if (!id) return;
+            setIsLoading(true);
+            try {
+                const response = await api.get(`/products/recommend?currentVariantId=${id}&limit=10`);
+                const productsData = response.data.data;
+                setProducts(productsData.map((p: any) => convertProduct(p)));
+            } catch (err) {
+                console.error("Failed to fetch related products", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchRelatedProducts();
+    }, [id]);
+
+    const scrollCarousel = (direction: 'left' | 'right') => {
+        if (carouselRef.current) {
+            const scrollAmount = carouselRef.current.clientWidth * 0.8;
+            carouselRef.current.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
         }
-    ];
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex h-[200px] items-center justify-center rounded-[16px] bg-white border border-gray-200">
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-pink-600"></div>
+            </div>
+        );
+    }
+
+    if (products.length === 0) return null;
 
     return (
         <div className="z-1 flex flex-col gap-[16px] rounded-[16px] bg-white p-[20px] border border-gray-200 dark:border-gray-700">
@@ -47,40 +63,43 @@ const RelatedProducts = () => {
                 </div>
             </div>
 
-            <div className="relative mx-auto w-full">
+            <div className="relative group mx-auto w-full">
+                {/* Left Button */}
+                <button
+                    type="button"
+                    onClick={() => scrollCarousel('left')}
+                    className="absolute -left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#e82e81] shadow-lg transition opacity-0 group-hover:opacity-100 hover:bg-white"
+                >
+                    <span className="material-icons border-0 outline-none ring-0 focus:outline-none focus:ring-0 shadow-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m15 18-6-6 6-6" />
+                        </svg>
+                    </span>
+                </button>
+
                 <div className="overflow-hidden">
-                    <div className="flex w-full gap-2 overflow-x-auto pb-4 no-scrollbar">
+                    <div
+                        ref={carouselRef}
+                        className="flex w-full gap-4 overflow-x-auto pb-4 no-scrollbar scroll-smooth"
+                    >
                         {products.map(product => (
-                            <div key={product.id} className="min-w-[140px] flex-1 max-w-[calc(33.33%-8px)]">
-                                <div className="flex flex-col h-full overflow-hidden rounded-[16px] border border-[#f1f1f1] bg-white text-start">
-                                    <div className="relative">
-                                        <div className="flex items-center justify-center p-2">
-                                            <img src={product.image} alt={product.name} className="h-[120px] w-auto object-contain" />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-1 flex-col px-2 pt-2 text-[12px] gap-1 pb-2">
-                                        <del className="text-[12px] text-gray-400">{product.price + 10000}đ</del>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[16px] font-700 text-black-100">{product.price.toLocaleString()}đ</span>
-                                            <span className="rounded bg-primary-400 px-1 text-xs text-white">-{product.discount}%</span>
-                                        </div>
-                                        <Link to="#" className="line-clamp-2 text-[14px] text-black-100 hover:text-primary-400">
-                                            {product.name}
-                                        </Link>
-                                        <div className="text-[10px] text-gray-500">Đã bán {product.sold}</div>
-                                    </div>
-
-                                    <div className="p-2 pt-0">
-                                        <button className="w-full rounded-[24px] border border-primary-400 bg-white py-1 text-[12px] text-primary-400 hover:bg-primary-600 hover:text-white transition-colors">
-                                            Chọn mua
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <ProductCard key={product.id} product={product} />
                         ))}
                     </div>
                 </div>
+
+                {/* Right Button */}
+                <button
+                    type="button"
+                    onClick={() => scrollCarousel('right')}
+                    className="absolute -right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#e82e81] shadow-lg transition opacity-0 group-hover:opacity-100 hover:bg-white"
+                >
+                    <span className="material-icons border-0 outline-none ring-0 focus:outline-none focus:ring-0 shadow-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m9 18 6-6-6-6" />
+                        </svg>
+                    </span>
+                </button>
             </div>
         </div>
     );
