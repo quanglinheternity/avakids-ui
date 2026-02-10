@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Tippy from '@tippyjs/react/headless';
 import api from '../../../services/api';
+import { Link } from 'react-router-dom';
 
 interface Category {
     id: number;
@@ -64,9 +65,9 @@ const Sidebar = () => {
                 {/* Subcategories Grid */}
                 <div className="grid grid-cols-5 gap-1 p-2" style={{ minWidth: '400px', maxWidth: '680px' }}>
                     {subcategories.map((sub) => (
-                        <a
+                        <Link
                             key={sub.id}
-                            href="#"
+                            to={`/category/${sub.slug}`}
                             className="group flex flex-col items-center gap-3"
                         >
                             <div className="relative flex h-12 w-12  items-center justify-center overflow-hidden rounded-2xl bg-white  ring-2 ring-pink-50 transition-all duration-300 group-hover:scale-105 group-hover:ring-pink-300">
@@ -82,8 +83,7 @@ const Sidebar = () => {
                                 break-words whitespace-normal">
                                 {sub.name}
                             </span>
-
-                        </a>
+                        </Link>
                     ))}
                 </div>
 
@@ -119,9 +119,9 @@ const Sidebar = () => {
                             disabled={!category.children || category.children.length === 0}
                             appendTo={() => document.body}
                         >
-                            <a
+                            <Link
                                 className="group flex items-center px-4 py-3 text-sm text-slate-700 transition hover:bg-pink-50 hover:text-[#e82e81] dark:text-gray-200 dark:hover:bg-gray-700"
-                                href="#"
+                                to={`/category/${category.slug}`}
                             >
                                 <img
                                     alt={category.name}
@@ -146,7 +146,7 @@ const Sidebar = () => {
                                         <path d="m9 18 6-6-6-6" />
                                     </svg>
                                 </span>
-                            </a>
+                            </Link>
                         </Tippy>
                     ))}
                 </nav>

@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import ProductDetailPage from "./pages/product-detail/ProductDetailPage";
 import LoginPage from "./pages/auth/LoginPage";
 import CartPage from "./pages/cart/CartPage";
+import CategoryPage from "./pages/category/CategoryPage";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
                   <Route path="product/:id" element={<ProductDetailPage />} />
                   <Route path="login" element={<LoginPage />} />
                   <Route path="cart" element={<CartPage />} />
+                  <Route path="category/:slug" element={<CategoryPage />} />
                 </Route>
               </Routes>
             </BannerProvider>

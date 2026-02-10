@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
+import { useAuth } from './AuthContext';
 
 export interface UserAddress {
     id: number;
@@ -25,6 +26,7 @@ interface AddressContextType {
 const AddressContext = createContext<AddressContextType | undefined>(undefined);
 
 export const AddressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { isAuthenticated } = useAuth();
     const [addresses, setAddresses] = useState<UserAddress[]>([]);
     const [selectedAddress, setSelectedAddress] = useState<UserAddress | null>(null);
 
@@ -33,26 +35,10 @@ export const AddressProvider: React.FC<{ children: React.ReactNode }> = ({ child
             const response = await api.get('/userAddress/list');
             const data = response.data.data || [];
             setAddresses(data);
-
-            // Auto-select default or first available if none selected
-            if (!selectedAddress) {
-                const defaultAddr = data.find((addr: UserAddress) => addr.isDefault);
-                if (defaultAddr) {
-                    setSelectedAddress(defaultAddr);
-                } else if (data.length > 0) {
-                    setSelectedAddress(data[0]);
-                }
-            } else {
-                // Keep selected address updated if it still exists
-                const updatedSelected = data.find((addr: UserAddress) => addr.id === selectedAddress.id);
-                if (updatedSelected) {
-                    setSelectedAddress(updatedSelected);
-                }
-            }
         } catch (error) {
             console.error("Failed to fetch addresses:", error);
         }
-    }, [selectedAddress]);
+    }, []);
 
     const selectAddress = (address: UserAddress) => {
         setSelectedAddress(address);
@@ -91,9 +77,33 @@ export const AddressProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
     };
 
+    // Handle auto-selection and updates when addresses list changes
     useEffect(() => {
-        fetchAddresses();
-    }, []);
+        if (addresses.length === 0) return;
+
+        if (!selectedAddress) {
+            const defaultAddr = addresses.find((addr: UserAddress) => addr.isDefault);
+            if (defaultAddr) {
+                setSelectedAddress(defaultAddr);
+            } else {
+                setSelectedAddress(addresses[0]);
+            }
+        } else {
+            const updatedSelected = addresses.find((addr: UserAddress) => addr.id === selectedAddress.id);
+            if (updatedSelected && JSON.stringify(updatedSelected) !== JSON.stringify(selectedAddress)) {
+                setSelectedAddress(updatedSelected);
+            }
+        }
+    }, [addresses, selectedAddress]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchAddresses();
+        } else {
+            setAddresses([]);
+            setSelectedAddress(null);
+        }
+    }, [isAuthenticated, fetchAddresses]);
 
     return (
         <AddressContext.Provider value={{

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import api from '../services/api';
+import { useAuth } from './AuthContext';
 
 export interface Product {
     id: number | string;
@@ -36,6 +37,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+    const { isAuthenticated } = useAuth();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [summary, setSummary] = useState({
         totalItems: 0,
@@ -68,8 +70,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     };
 
     useEffect(() => {
-        refreshCart();
-    }, []);
+        if (isAuthenticated) {
+            refreshCart();
+        } else {
+            setCartItems([]);
+            setSummary({ totalItems: 0, totalAmount: 0 });
+        }
+    }, [isAuthenticated]);
 
     const removeFromCart = async (cartItemId: number) => {
         try {
