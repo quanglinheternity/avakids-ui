@@ -190,9 +190,9 @@ const CartPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <button className="mt-6 w-full rounded-xl bg-pink-600 py-4 text-16 font-bold text-white shadow-lg shadow-pink-100 hover:bg-pink-700 transition-all active:scale-[0.98]">
+                            <Link to="/checkout" className="mt-6 w-full rounded-xl bg-pink-600 py-4 text-16 font-bold text-white shadow-lg shadow-pink-100 hover:bg-pink-700 transition-all active:scale-[0.98] block text-center">
                                 THANH TOÁN ({totalItems})
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
