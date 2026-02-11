@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
     const { login } = useAuth();
@@ -50,7 +51,7 @@ const LoginPage = () => {
                     refreshToken: loginData.refreshToken
                 });
 
-                alert('Đăng nhập thành công!');
+                toast.success('Đăng nhập thành công!');
                 navigate('/');
             }
         } catch (err: any) {

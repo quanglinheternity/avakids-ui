@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAddress, UserAddress } from '../../../contexts/AddressContext';
+import { toast } from 'react-toastify';
 
 interface AddressModalProps {
     isOpen: boolean;
@@ -68,8 +69,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
             }
             setIsFormOpen(false);
             setEditingAddress(null);
+            toast.success(editingAddress ? "Cập nhật địa chỉ thành công!" : "Thêm địa chỉ mới thành công!");
         } catch (error) {
-            alert("Có lỗi xảy ra khi lưu địa chỉ.");
+            toast.error("Có lỗi xảy ra khi lưu địa chỉ.");
         }
     };
 
@@ -78,8 +80,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
         if (window.confirm("Bạn có chắc chắn muốn xóa địa chỉ này?")) {
             try {
                 await deleteAddress(id);
+                toast.success("Xóa địa chỉ thành công!");
             } catch (error) {
-                alert("Không thể xóa địa chỉ.");
+                toast.error("Không thể xóa địa chỉ.");
             }
         }
     };

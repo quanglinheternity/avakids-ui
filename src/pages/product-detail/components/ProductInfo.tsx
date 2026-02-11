@@ -3,6 +3,7 @@ import axios from 'axios';
 import api from '../../../services/api';
 import { type ProductDetail, type ProductOption } from './convertProductDetail';
 import { useCart } from '../../../contexts/CartContext';
+import { toast } from 'react-toastify';
 
 interface ProductInfoProps {
     product: ProductDetail;
@@ -29,18 +30,18 @@ const ProductInfo = ({ product, allOptions, onOptionChange }: ProductInfoProps) 
                 quantity: quantity
             });
             await refreshCart();
-            alert('Đã thêm sản phẩm vào giỏ hàng!');
+            toast.success('Đã thêm sản phẩm vào giỏ hàng!');
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 const data = error.response?.data;
                 if (data?.message) {
-                    alert(data.message);
+                    toast.error(data.message);
                 } else {
-                    alert("Có lỗi xảy ra khi thêm vào giỏ hàng.");
+                    toast.error("Có lỗi xảy ra khi thêm vào giỏ hàng.");
                 }
                 console.error("Add to cart error:", data);
             } else {
-                alert("Có lỗi không xác định.");
+                toast.error("Có lỗi không xác định.");
                 console.error(error);
             }
         } finally {
