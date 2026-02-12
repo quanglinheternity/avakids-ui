@@ -5,6 +5,8 @@ import Cookies from 'js-cookie';
 interface User {
     email: string;
     fullName?: string;
+    phone?: string;
+    avatarUrl?: string;
     token?: string;
     refreshToken?: string;
 }
@@ -24,6 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Initialize state from localStorage and Cookies on mount
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
+
         const token = Cookies.get('token');
 
         if (storedUser && token) {

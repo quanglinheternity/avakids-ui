@@ -44,6 +44,7 @@ const Menu = () => {
                             placement="bottom-start"
                             delay={[0, 100]}
                             arrow={false}
+                            hideOnClick={false}
                             offset={[0, 10]}
                             content={
                                 <div className="bg-white text-gray-800 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] py-2 w-64 animate-fadeIn overflow-hidden border border-gray-100">

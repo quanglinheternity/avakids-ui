@@ -11,7 +11,9 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import CartPage from "./pages/cart/CartPage";
 import CategoryPage from "./pages/category/CategoryPage";
 import CheckoutPage from "./pages/checkout/CheckoutPage";
+import ProfilePage from "./pages/profile/ProfilePage";
 import PaymentResultPage from "./pages/payment/PaymentResultPage";
+import OrderHistoryPage from "./pages/orders/OrderHistoryPage";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -46,6 +48,8 @@ function App() {
                   <Route path="checkout" element={<CheckoutPage />} />
                   <Route path="category/:slug" element={<CategoryPage />} />
                   <Route path="payment-result" element={<PaymentResultPage />} />
+                  <Route path="orders" element={<OrderHistoryPage />} />
+                  <Route path="profile" element={<ProfilePage />} />
                 </Route>
               </Routes>
             </BannerProvider>
