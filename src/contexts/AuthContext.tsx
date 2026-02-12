@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 // Define the shape of the user object
 interface User {
     email: string;
-    name?: string;
+    fullName?: string;
     token?: string;
     refreshToken?: string;
 }

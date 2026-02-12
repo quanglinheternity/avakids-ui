@@ -173,7 +173,17 @@ body {
     display: none;
 }
 
-/* Tippy z-index override */
+/* Tippy z-index and style override */
 [data-tippy-root] {
     z-index: 99999 !important;
+}
+
+.tippy-box {
+    background-color: transparent !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+.tippy-content {
+    padding: 0 !important;
 }
