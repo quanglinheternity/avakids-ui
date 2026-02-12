@@ -15,8 +15,8 @@ interface FilterProps {
 const ProductFilterSort = ({
     activeSort,
     onSortChange,
-    activeAge,
-    onAgeChange,
+    // activeAge,
+    // onAgeChange,
     minPrice,
     setMinPrice,
     maxPrice,
