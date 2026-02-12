@@ -8,7 +8,6 @@ const LoginPage = () => {
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [agreed, setAgreed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -23,7 +22,7 @@ const LoginPage = () => {
         setError('');
     };
 
-    const isFormValid = email.length > 0 && password.length > 0 && agreed;
+    const isFormValid = email.length > 0 && password.length > 0;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -84,7 +83,7 @@ const LoginPage = () => {
                         <div className="rounded-[12px] bg-white pt-[24px] w-[42%] p-[40px] mb-[8px]">
                             <section className="mx-[3px] mb-[2px] mt-[8px] rounded-md bg-white text-[13px] font-normal text-[#222b45] xs:text-[14px]">
                                 <div className="px-[8px] py-[8px] text-center text-[26px] font-bold">
-                                    Đăng ký/ Đăng nhập
+                                    Đăng nhập
                                 </div>
                                 <div className="mx-auto p-[8px]">
                                     <form onSubmit={handleSubmit} data-gtm-form-interact-id="0">
@@ -167,47 +166,7 @@ const LoginPage = () => {
 
                                             </div>
                                         </div>
-                                        <div className="mb-[24px] mt-[24px] flex items-center gap-[6px]">
-                                            <div className="inline-flex w-full items-center">
-                                                <label className="relative flex w-full cursor-pointer items-center gap-[10px]">
-                                                    <input
-                                                        id="agreeToTerms"
-                                                        className="peer h-[20px] w-[20px] cursor-pointer appearance-none rounded border border-slate-300 shadow transition-all checked:border-primary-600 checked:bg-primary-600 hover:shadow-md"
-                                                        type="checkbox"
-                                                        value=""
-                                                        name="agreeToTerms"
-                                                        checked={agreed}
-                                                        onChange={(e) => setAgreed(e.target.checked)}
-                                                    />
-                                                    <span className="absolute left-[10px] top-1/2 -translate-x-1/2 -translate-y-1/2 transform text-white opacity-0 peer-checked:opacity-100">
-                                                        <svg
-                                                            className="h-3.5 w-3.5"
-                                                            viewBox="0 0 20 20"
-                                                            fill="currentColor"
-                                                            stroke="currentColor"
-                                                            strokeWidth="1"
-                                                        >
-                                                            <path
-                                                                fillRule="evenodd"
-                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                clipRule="evenodd"
-                                                            ></path>
-                                                        </svg>
-                                                    </span>
-                                                    <p className="w-[calc(100%_-_30px)] text-[12px] font-400 leading-[18px] text-black-100">
-                                                        Tôi đồng ý với{' '}
-                                                        <Link className="cursor-pointer font-500 text-[#2186EB] underline" to="#">
-                                                            Quy định tích điểm, sử dụng điểm của Quà Tặng Vip,
-                                                        </Link>{' '}
-                                                        và{' '}
-                                                        <Link className="cursor-pointer font-500 text-[#2186EB] underline" to="#">
-                                                            Chính sách Bảo vệ thông tin cá nhân
-                                                        </Link>{' '}
-                                                        và nhận thông tin quảng cáo, chăm sóc khách hàng từ Quà Tặng Vip
-                                                    </p>
-                                                </label>
-                                            </div>
-                                        </div>
+
                                         <button
                                             type="submit"
                                             disabled={!isFormValid || loading}
@@ -215,6 +174,12 @@ const LoginPage = () => {
                                         >
                                             {loading ? 'Đang xử lý...' : 'Tiếp tục'}
                                         </button>
+                                        <div className="mt-4 text-center">
+                                            <span className="text-gray-600">Chưa có tài khoản? </span>
+                                            <Link to="/register" className="text-primary-600 font-bold hover:underline">
+                                                Đăng ký ngay
+                                            </Link>
+                                        </div>
                                     </form>
                                 </div>
                             </section>

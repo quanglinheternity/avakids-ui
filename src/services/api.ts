@@ -35,7 +35,11 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       const refreshToken = Cookies.get('refreshToken');
-      if (refreshToken) {
+      const isAuthPath = originalRequest.url?.includes('/auth/login') || 
+                         originalRequest.url?.includes('/auth/register') || 
+                         originalRequest.url?.includes('/users/create');
+
+      if (refreshToken && !isAuthPath) {
         try {
           // Attempt to refresh token
           // Note: Adjust the endpoint as per your backend API
@@ -64,7 +68,7 @@ api.interceptors.response.use(
           window.location.href = '/login';
           return Promise.reject(refreshError);
         }
-      } else {
+      } else if (!isAuthPath) {
         // No refresh token available, redirect to login
         Cookies.remove('token');
         localStorage.removeItem('user');
