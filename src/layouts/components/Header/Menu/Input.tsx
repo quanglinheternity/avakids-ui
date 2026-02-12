@@ -1,8 +1,29 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const InputHeader = () => {
+    const [keyword, setKeyword] = useState('');
+    const navigate = useNavigate();
+
+    const handleSearch = () => {
+        if (keyword.trim()) {
+            navigate(`/search?keyword=${encodeURIComponent(keyword.trim())}`);
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
     return (
         <div className="w-full ">
             <div className="relative flex h-10 w-full">
-                <div className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
+                <div
+                    className="absolute top-1/2 left-3 -translate-y-1/2 cursor-pointer"
+                    onClick={handleSearch}
+                >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -21,6 +42,9 @@ const InputHeader = () => {
 
                 <input
                     type="text"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder="Ba mẹ muốn tìm gì..."
                     className="h-full w-full rounded-full border border-gray-300 bg-white pr-4 pl-10 text-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />

@@ -159,6 +159,19 @@ body {
         transform: translateY(0);
     }
 }
+.icon-store {
+  background-position: -320px -45px;
+  height: 24px;
+  width: 24px;
+}
+
+
+.icon-hometel {
+  background-position: -674px -79px;
+
+  height: 22px;
+  width: 22px;
+}
 
 .animate-fadeIn {
     animation: fadeIn 0.2s ease-out;

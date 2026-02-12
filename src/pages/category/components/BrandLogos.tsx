@@ -1,29 +1,46 @@
-const BrandLogos = () => {
-    const brands = [
-        { id: 1, name: 'a2-milk', logo: 'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/pim/cdn/images/202511/logo-a2-milk113149.png', link: '#' },
-        { id: 2, name: 'friso', logo: 'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/2021/11/Sports/Images/119003/Friso-200x120.png', link: '#' },
-        { id: 3, name: 'meiji', logo: 'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/2021/12/Sports/Images/0/Meiji-200x120.png', link: '#' },
-        { id: 4, name: 'aptamil-uc', logo: 'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/2024/01/Sports/Images/590404/aptamil-uc-200x120.png', link: '#' },
-        { id: 5, name: 'similac', logo: 'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/2021/12/Sports/Images/118606/Thietkekhongten(74)-200x120.png', link: '#' },
-        { id: 6, name: 'aptamil', logo: 'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/2021/11/Sports/Images/118607/Aptamil-200x120.png', link: '#' },
-        { id: 7, name: 'optimum', logo: 'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdnv2.tgdd.vn/pim/cdn/images/202505/logo-optimum-new_0103116.png', link: '#' },
-        { id: 8, name: 'pediasure', logo: 'https://img.tgdd.vn/imgt/ecom/f_webp,fit_outside,quality_95/https://cdn.tgdd.vn/2021/11/Sports/Images/118605/PediaSure-200x120-1.png', link: '#' },
-    ];
+import { Link } from 'react-router-dom';
+
+interface Category {
+    id: number;
+    name: string;
+    slug: string;
+    imageUrl: string;
+    children?: Category[];
+}
+
+interface BrandLogosProps {
+    parentCategory: Category | null;
+    relatedCategories: Category[];
+    currentSlug?: string;
+}
+
+const BrandLogos = ({ parentCategory, relatedCategories, currentSlug }: BrandLogosProps) => {
+    if (!parentCategory && relatedCategories.length === 0) return null;
 
     return (
-        <div className="flex flex-wrap gap-2">
-            {brands.map((brand) => (
-                <a
-                    key={brand.id}
-                    href={brand.link}
-                    className="flex h-11 w-20 flex-shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-white p-1.5 transition-all hover:border-pink-300 hover:shadow-sm"
+        <div className="flex flex-wrap gap-2 items-center">
+            {parentCategory && (
+                <>
+                    <span
+                        className="flex h-9 items-center rounded-full border border-[#e82e81] bg-white px-4 text-sm font-medium text-[#e82e81]"
+                    >
+                        <span className="mr-1">All</span> {parentCategory.name}
+                    </span>
+                    <div className="h-6 w-[1px] bg-slate-300 mx-1"></div>
+                </>
+            )}
+
+            {relatedCategories.map((cat) => (
+                <Link
+                    key={cat.id}
+                    to={`/category/${cat.slug}`}
+                    className={`flex h-9 items-center rounded-full border px-4 text-sm font-medium transition-all ${currentSlug === cat.slug
+                        ? 'border-[#e82e81] bg-[#e82e81] text-white'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-pink-300 hover:text-[#e82e81]'
+                        }`}
                 >
-                    <img
-                        src={brand.logo}
-                        alt={brand.name}
-                        className="h-full w-full object-contain"
-                    />
-                </a>
+                    {cat.name}
+                </Link>
             ))}
         </div>
     );
