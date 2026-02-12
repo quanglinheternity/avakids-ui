@@ -15,11 +15,47 @@ const CheckoutPage = () => {
     const [selectedPayment, setSelectedPayment] = useState('1011'); // COD by default
     const [agreedPolicy, setAgreedPolicy] = useState(true);
     const [couponCode, setCouponCode] = useState('');
+    const [appliedVoucherCode, setAppliedVoucherCode] = useState<string | null>(null);
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    const [discountAmount, setDiscountAmount] = useState(0);
+    const [isValidatingVoucher, setIsValidatingVoucher] = useState(false);
 
     const shippingFee = 15000;
-    const totalAmount = finalPrice + shippingFee;
+    const totalAmount = finalPrice + shippingFee - discountAmount;
+
+    const handleApplyVoucher = async () => {
+        if (!couponCode.trim()) {
+            toast.warning('Vui lòng nhập mã giảm giá');
+            return;
+        }
+
+        setIsValidatingVoucher(true);
+        try {
+            const response = await api.post('/voucher/validate', {
+                code: couponCode,
+                orderAmount: totalPrice
+            });
+
+            const responseData = response.data;
+            if (responseData.code === 1000 && responseData.data.isValid) {
+                const discount = responseData.data.discountAmount || 0;
+                setDiscountAmount(discount);
+                setAppliedVoucherCode(couponCode);
+                toast.success(responseData.data.message || `Đã áp dụng mã giảm giá: -${formatPrice(discount)}`);
+            } else {
+                setDiscountAmount(0);
+                setAppliedVoucherCode(null);
+                toast.error(responseData.data?.message || responseData.message || 'Mã giảm giá không hợp lệ');
+            }
+        } catch (error: any) {
+            setDiscountAmount(0);
+            const errorMsg = error.response?.data?.message || 'Không thể kiểm tra mã giảm giá lúc này';
+            toast.error(errorMsg);
+        } finally {
+            setIsValidatingVoucher(false);
+        }
+    };
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -46,7 +82,6 @@ const CheckoutPage = () => {
         const paymentMap: Record<string, string> = {
             '1011': 'COD',
             '1012': 'BANKING',
-            '17': 'MOMO'
         };
 
         const payload = {
@@ -60,7 +95,7 @@ const CheckoutPage = () => {
                 address: `${selectedAddress.address}, ${selectedAddress.district}, ${selectedAddress.city}`
             },
             customerNote: otherRequest,
-            couponCode: couponCode || null,
+            voucherCode: appliedVoucherCode,
             paymentMethod: paymentMap[selectedPayment] || 'COD'
         };
 
@@ -244,7 +279,13 @@ const CheckoutPage = () => {
                                     value={couponCode}
                                     onChange={(e) => setCouponCode(e.target.value)}
                                 />
-                                <button className="px-6 h-11 bg-primary-500 text-white font-bold rounded-xl hover:bg-primary-600 transition-colors">ÁP DỤNG</button>
+                                <button
+                                    onClick={handleApplyVoucher}
+                                    disabled={isValidatingVoucher}
+                                    className="px-6 h-11 bg-primary-500 text-white font-bold rounded-xl hover:bg-primary-600 transition-colors disabled:opacity-50"
+                                >
+                                    {isValidatingVoucher ? '...' : 'ÁP DỤNG'}
+                                </button>
                             </div>
                         </div>
 
@@ -278,6 +319,11 @@ const CheckoutPage = () => {
                                 <div className="flex justify-between text-ink-normal border-t border-dashed pt-2">
                                     <span>Phí giao hàng</span><span>{formatPrice(shippingFee)}</span>
                                 </div>
+                                {discountAmount > 0 && appliedVoucherCode && (
+                                    <div className="flex justify-between text-green-600 font-medium pt-2">
+                                        <span>Giảm giá voucher ({appliedVoucherCode})</span><span>-{formatPrice(discountAmount)}</span>
+                                    </div>
+                                )}
                                 <div className="pt-2 border-t border-slate-200 flex justify-between items-end">
                                     <span className="text-ink-dark font-bold">Cần thanh toán</span>
                                     <span className="text-24 font-bold text-primary-500">{formatPrice(totalAmount)}</span>
