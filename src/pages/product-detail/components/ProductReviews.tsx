@@ -5,13 +5,18 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../../services/api';
 
+interface RatingDistribution {
+    rating: number;
+    count: number;
+    percentage: number;
+}
+
 interface ReviewSummary {
     averageRating: number;
-    reviewCount: number;
-    ratingCount: number;
-    ratingDistribution: {
-        [key: number]: number;
-    };
+    totalReviews: number;
+    ratingDistribution: RatingDistribution[];
+    verifiedPurchaseCount: number;
+    hasImagesCount: number;
 }
 
 interface Review {
@@ -81,14 +86,14 @@ const ProductReviews = () => {
                         <span className="text-[50px] font-700 text-primary-400">{summary.averageRating.toFixed(1)}</span>
                         <span className="text-[25px] font-700 text-primary-400">/5</span>
                     </div>
-                    <span className="block text-[12px] font-500 leading-[16px] text-gray-700">{summary.reviewCount} Đánh giá</span>
+                    <span className="block text-[12px] font-500 leading-[16px] text-gray-700">{summary.totalReviews} Đánh giá</span>
                 </div>
 
                 {/* Progress Bars */}
                 <div className="mx-[10px] flex w-full flex-col gap-[10px]">
                     {[5, 4, 3, 2, 1].map((star) => {
-                        const count = summary.ratingDistribution[star] || 0;
-                        const percentage = summary.reviewCount > 0 ? (count / summary.reviewCount) * 100 : 0;
+                        const starData = summary.ratingDistribution.find(item => item.rating === star);
+                        const percentage = starData ? starData.percentage : 0;
                         return (
                             <div key={star} className="flex items-center gap-[10px]">
                                 <div className="flex w-[40px] gap-[10px] items-center">

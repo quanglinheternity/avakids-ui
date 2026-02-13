@@ -113,7 +113,7 @@ const SuggestedProductsSection = () => {
                     <button
                         type="button"
                         onClick={() => setActiveTab('suggested')}
-                        className={`flex items-center gap-2 rounded-lg px-8 py-2 transition ${activeTab === 'suggested'
+                        className={`flex items-center gap-2 rounded-lg px-8 py-2 transition cursor-pointer ${activeTab === 'suggested'
                             ? 'text-pink-600 dark:bg-pink-900/20 border border-pink-600 dark:border-pink-600'
                             : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
                             }`}
@@ -124,7 +124,7 @@ const SuggestedProductsSection = () => {
                     <button
                         type="button"
                         onClick={() => setActiveTab('rebuy')}
-                        className={`flex items-center gap-2 rounded-lg px-8 py-2 transition ${activeTab === 'rebuy'
+                        className={`flex items-center gap-2 rounded-lg px-8 py-2 transition cursor-pointer ${activeTab === 'rebuy'
                             ? 'border border-pink-600 dark:border-pink-600 text-pink-600 dark:bg-pink-900/20'
                             : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
                             }`}
@@ -136,7 +136,7 @@ const SuggestedProductsSection = () => {
                     <button
                         type="button"
                         onClick={() => setActiveTab('favorite')}
-                        className={`flex items-center gap-2 rounded-lg px-8 py-2 transition ${activeTab === 'favorite'
+                        className={`flex items-center gap-2 rounded-lg px-8 py-2 transition cursor-pointer ${activeTab === 'favorite'
                             ? 'border border-pink-600 dark:border-pink-600 text-pink-600 dark:bg-pink-900/20'
                             : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
                             }`}

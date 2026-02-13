@@ -113,16 +113,16 @@ const CategoryPage = () => {
             case 'newest':
                 return { sortBy: 'createdAt', sortDirection: 'DESC' };
             case 'price-asc':
-                return { sortBy: 'minPrice', sortDirection: 'ASC' };
+                return { sortBy: 'price', sortDirection: 'ASC' };
             case 'price-desc':
-                return { sortBy: 'minPrice', sortDirection: 'DESC' };
+                return { sortBy: 'price', sortDirection: 'DESC' };
             case 'discount':
-                return { sortBy: 'discountPercent', sortDirection: 'DESC' };
+                return { sortBy: 'discount', sortDirection: 'DESC' };
             case 'best-seller':
-                return { sortBy: 'totalSold', sortDirection: 'DESC' };
+                return { sortBy: 'sold', sortDirection: 'DESC' };
             case 'popular':
             default:
-                return { sortBy: 'avgRating', sortDirection: 'DESC' };
+                return { sortBy: 'rating', sortDirection: 'DESC' };
         }
     };
 

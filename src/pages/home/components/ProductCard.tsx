@@ -70,7 +70,7 @@ const ProductCard = ({ product, showProgress = false }: ProductCardProps) => {
                     <div className="flex items-center justify-between">
                         {product.soldCount !== undefined && (
                             <p className="text-[9px] text-gray-500">
-                                Đã bán {product.soldCount}
+                                Đã bán {product.soldCount >= 1000 ? (product.soldCount / 1000).toFixed(1) + 'k' : product.soldCount}
                             </p>
                         )}
 

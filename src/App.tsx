@@ -20,11 +20,13 @@ const CheckoutPage = React.lazy(() => import("./pages/checkout/CheckoutPage"));
 const ProfilePage = React.lazy(() => import("./pages/profile/ProfilePage"));
 const PaymentResultPage = React.lazy(() => import("./pages/payment/PaymentResultPage"));
 const OrderHistoryPage = React.lazy(() => import("./pages/orders/OrderHistoryPage"));
+import ScrollToTop from "./components/common/ScrollToTop";
 
 function App() {
 
   return (
     <>
+      <ScrollToTop />
       <ToastContainer
         position="top-right"
         autoClose={3000}

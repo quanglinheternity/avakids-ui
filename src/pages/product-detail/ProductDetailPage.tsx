@@ -133,8 +133,8 @@ const ProductDetailPage = () => {
                 <div className="mb-4 flex gap-2 text-sm text-gray-500">
                     <Link to="/" className="hover:text-pink-600">Trang chủ</Link>
                     <span>/</span>
-                    <Link to="/" className="hover:text-pink-600">Bỉm, Tã</Link>
-                    <span>/</span>
+                    {/* <Link to="/" className="hover:text-pink-600">Bỉm, Tã</Link>
+                    <span>/</span> */}
                     <span className="text-gray-900 line-clamp-1">{product.name}</span>
                 </div>
 
